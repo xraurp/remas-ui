@@ -1,102 +1,129 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh lpR fFf">
+    <q-header class="bg-primary text-white">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
-          Quasar App
+          <q-avatar>
+            <!-- TODO - change icon to some created one -->
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
+          </q-avatar>
+          REMAS
         </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <!-- TODO - add avatar with user settings -->
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
       <q-list>
-        <q-item-label
-          header
+        <template
+          v-for="drawerItem in leftDrawerContent"
+          :key="drawerItem.label"
         >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+          <q-item-label v-if="drawerItem.label" header>{{
+            drawerItem.label
+          }}</q-item-label>
+          <q-separator v-if="drawerItem.label" />
+          <q-item
+            v-for="item in drawerItem.pages"
+            :key="item.label"
+            clickable
+            :to="{ name: item.link }"
+          >
+            <q-item-section>
+              <q-item-label style="text-align: center">{{
+                item.label
+              }}</q-item-label>
+            </q-item-section>
+            <!-- TODO - add link - router action! -->
+          </q-item>
+        </template>
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer class="bg-grey-8 text-white">
+      <q-toolbar>
+        <q-toolbar-title>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
+          </q-avatar>
+          <div>Title</div>
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+//import { pageNavigationCategory, pageNavigationItem } from 'components/models';
 
-const linksList: EssentialLinkProps[] = [
+const leftDrawerContent = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    label: 'Task planning',
+    adminOnly: false,
+    pages: [
+      {
+        label: 'Tasks',
+        link: '/tasks',
+      },
+    ],
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    label: 'Status',
+    adminOnly: true,
+    pages: [
+      {
+        label: 'Cluster status',
+        link: '/cluster-status',
+      },
+      {
+        label: 'All tasks',
+        link: '/all-tasks',
+      },
+    ],
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    label: 'Management',
+    adminOnly: true,
+    pages: [
+      {
+        label: 'Users',
+        link: 'user', // TODO -- change to users
+      },
+      {
+        label: 'Groups',
+        link: '/groups',
+      },
+      {
+        label: 'Nodes',
+        link: '/nodes',
+      },
+    ],
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    label: 'Automation',
+    adminOnly: false,
+    pages: [
+      {
+        label: 'Notifications',
+        link: '/notifications',
+      },
+      {
+        label: 'Resource limits',
+        link: '/resource-limits',
+      },
+    ],
   },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
 ];
 
 const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer () {
+function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 </script>
