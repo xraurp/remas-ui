@@ -1,0 +1,164 @@
+/* tslint:disable */
+
+/**
+/* This file was automatically generated from pydantic models by running pydantic2ts.
+/* Do not modify it by hand - just update the pydantic models and then re-run the script
+*/
+
+export type EventType = 'task_start' | 'task_end' | 'other';
+export type NotificationType =
+  | 'task_start'
+  | 'task_end'
+  | 'grafana_resource_exceedance_task'
+  | 'grafana_resource_exceedance_general'
+  | 'other';
+export type TaskStatus = 'scheduled' | 'running' | 'finished';
+
+export interface Event {
+  id?: number;
+  name: string;
+  description?: string | null;
+  time: string;
+  type: EventType;
+  task_id: number;
+  task: Task;
+  notification_id?: number | null;
+  notification?: Notification;
+}
+export interface Group {
+  id?: number;
+  name: string;
+  description?: string | null;
+  users_share_statistics?: boolean;
+  parent_id?: number | null;
+  parent?: Group;
+  members?: User[];
+}
+export interface Limit {
+  id?: number;
+  name: string;
+  description?: string | null;
+  amount: number;
+  user_id?: number | null;
+  user?: User;
+  group_id?: number | null;
+  group?: Group;
+  resource_id?: number;
+  resource?: Resource;
+}
+/**
+ * Node is a computer in the cluster.
+ */
+export interface Node {
+  id?: number;
+  name: string;
+  description?: string | null;
+  resources?: Resource[];
+  limits?: Limit[];
+}
+/**
+ * Connection table for node and resource. Defines how much of a resource
+ * is provided by a node (for example 2 GPUs).
+ */
+export interface NodeProvidesResource {
+  node_id?: number;
+  resource_id?: number;
+  amount: number;
+}
+/**
+ * Notification for time based events like task start/end or Grafana alerts.
+ */
+export interface Notification {
+  id?: number;
+  name: string;
+  description?: string | null;
+  time_offset?: number | null;
+  notification_template?: string | null;
+  type?: NotificationType;
+  default_amount?: number | null;
+  owner_id?: number | null;
+  owner?: User;
+  resource_id?: number | null;
+  resource?: Resource;
+  receivers_users?: User[];
+  receivers_groups?: Group[];
+}
+/**
+ * Resource is provided by a node, like CPU, RAM, GPU, etc.
+ */
+export interface Resource {
+  id?: number;
+  name: string;
+  description?: string | null;
+}
+/**
+ * Alias is an additional name for a resource, like "cpu" or "gpu".
+ */
+export interface ResourceAlias {
+  id?: number;
+  name: string;
+  description?: string | null;
+  nodes?: Node[];
+  limits?: Limit[];
+  aliases?: ResourceAlias[];
+  notifications?: Notification[];
+}
+/**
+ * ResourceAllocation is a connection table between node, resource and task.
+ * Tells how much of a resource is used by a task on a node.
+ */
+export interface ResourceAllocation {
+  task_id?: number;
+  node_id?: number;
+  resource_id?: number;
+  amount: number;
+}
+
+/**
+ * Template for Grafana panels for given resource.
+ */
+export interface ResourcePanelTemplate {
+  id?: number;
+  template: string;
+  resource_id?: number;
+  resource?: Resource;
+}
+/**
+ * Task is a job that user executes on a node.
+ */
+export interface Task {
+  id?: number;
+  name: string;
+  description?: string | null;
+  start_time: string;
+  end_time: string;
+  status?: TaskStatus;
+  owner_id?: number;
+  owner?: User;
+  resource_allocations?: ResourceAllocation[];
+  tags?: TaskTag[];
+}
+
+export interface TaskTag {
+  id?: number;
+  name: string;
+  description?: string | null;
+  user_id?: number;
+  user?: User;
+  tasks?: Task[];
+}
+
+export interface User {
+  id?: number;
+  name?: string | null;
+  surname?: string | null;
+  uid: number;
+  username: string;
+  email: string;
+  group_id?: number;
+  group?: Group;
+}
+
+export interface UserWithPassword extends User {
+  password: string;
+}
