@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { useAuthStore } from 'src/stores/auth-store';
 
 /*
  * If not building with SSR mode, you can
@@ -17,9 +18,12 @@ import routes from './routes';
  */
 
 export default defineRouter(function (/* { store, ssrContext } */) {
+  const authStore = useAuthStore();
   const createHistory = process.env.SERVER
     ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : process.env.VUE_ROUTER_MODE === 'history'
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
@@ -29,6 +33,20 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
+  });
+
+  // Redirect to login if not logged in
+  Router.beforeEach((to) => {
+    if (authStore.isRefreshTokenExpired && to.name !== 'login') {
+      return { name: 'login' };
+    }
+    return true;
+  });
+
+  // Cancel navigation if user does not have permission
+  Router.beforeEach((to) => {
+    if (to.meta.adminOnly) return authStore.isAdmin;
+    else return true;
   });
 
   return Router;
