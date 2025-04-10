@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isRefreshTokenExpired: (state) => {
       if (!state.refreshToken) {
-        return false;
+        return true;
       }
       const decodeTokenExpiration = jwtDecode<CustomPayload>(
         state.refreshToken,
@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('auth', {
     },
     isAccessTokenExpired: (state) => {
       if (!state.accessToken) {
-        return false;
+        return true;
       }
       const decodeTokenExpiration = jwtDecode<CustomPayload>(
         state.accessToken,
@@ -46,7 +46,12 @@ export const useAuthStore = defineStore('auth', {
       }
       return true;
     },
-    isAdmin: (state) => jwtDecode<CustomPayload>(state.refreshToken).is_admin,
+    isAdmin: (state) => {
+      if (!state.refreshToken) {
+        return false;
+      }
+      return jwtDecode<CustomPayload>(state.refreshToken).is_admin;
+    },
     getUserId: (state) => jwtDecode<CustomPayload>(state.refreshToken).user_id,
     getUserUsername: (state) =>
       jwtDecode<CustomPayload>(state.refreshToken).sub,
