@@ -1,31 +1,23 @@
 <template>
   <q-page padding>
     <!-- content -->
-    <UserView :groups="groups" :create-new="true" />
+    <UserView :create-new="createNew" :user_id="getNumericId" />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import UserView from 'src/components/UserView.vue';
-import { ref } from 'vue';
-import type { Group } from 'src/components/db_models';
+import { computed } from 'vue';
 
-const groups = ref<Group[]>([
-  {
-    id: 1,
-    name: 'All users',
-    description: 'Group 1 description',
-  },
-  {
-    id: 2,
-    name: 'Administrators',
-    description: 'Group 2 description',
-  },
-  {
-    id: 3,
-    name: 'Users',
-    description: 'Group 3 description',
-  },
-]);
-//
+const props = defineProps<{
+  id: string | undefined;
+}>();
+
+const createNew = computed(() => {
+  return !props.id;
+});
+
+const getNumericId = computed(() => {
+  return Number(props.id);
+});
 </script>

@@ -95,24 +95,37 @@
 </template>
 
 <script setup lang="ts">
-import type { User, UserWithPassword, Group } from 'src/components/db_models';
-import { computed, ref } from 'vue';
+import type { User, Group } from 'src/components/db_models';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { api } from 'boot/axios';
+import { useUserGroupStore } from 'src/stores/user-group-store';
 
 const props = defineProps<{
-  user?: User;
-  groups: Group[];
+  user_id?: number;
   createNew: boolean;
 }>();
 
-const groups = props.groups;
-let user = props.user;
-let createNew = props.createNew;
-
+const userGroupStore = useUserGroupStore();
 const router = useRouter();
 const $q = useQuasar();
+
+onMounted(async () => {
+  if (!userGroupStore.users.length) {
+    await userGroupStore.fetchUsers();
+  }
+  if (!userGroupStore.groups.length) {
+    await userGroupStore.fetchGroups();
+  }
+});
+
+const groups: Group[] = userGroupStore.getGroups;
+
+let user: User | undefined = undefined;
+if (props.user_id) {
+  user = userGroupStore.getUserById(props.user_id);
+}
+let createNew = props.createNew;
 
 /**
  * Returns the name of the group that the user belongs to,
@@ -120,7 +133,7 @@ const $q = useQuasar();
  * @returns The name of the group that the user belongs to.
  */
 function getDefaultSelectedGroup() {
-  return groups.find((group) => group.id === user?.group_id)?.name || 'Users';
+  return groups.find((group) => group.id === user?.group?.id)?.name || 'Users';
 }
 
 const readOnly = ref(!createNew);
@@ -191,21 +204,23 @@ function onSubmit() {
   readOnly.value = true;
 
   if (createNew) {
-    api
-      .post('/user', <UserWithPassword>{
-        ...userEdit.value,
-        password: password.value,
-      })
-      .then((response) => {
+    const userWPasswd = {
+      ...userEdit.value,
+      password: password.value,
+    };
+
+    userGroupStore
+      .createUser(userWPasswd)
+      .then((newUser) => {
         if (process.env.debug) {
-          console.log(response);
+          console.log(newUser);
         }
         $q.notify({
           type: 'positive',
           message: 'User created successfully!',
         });
         createNew = false;
-        user = response.data;
+        user = newUser;
       })
       .catch((error) => {
         if (process.env.debug) {
@@ -213,24 +228,24 @@ function onSubmit() {
         }
         $q.notify({
           type: 'negative',
-          message: error.response.data.detail,
+          message: error.message,
         });
       });
   }
   // update existing user
   else {
-    api
-      .put('/user', userEdit.value)
-      .then((response) => {
+    userGroupStore
+      .updateUser(userEdit.value)
+      .then((newUser) => {
         if (process.env.debug) {
-          console.log(response);
+          console.log(newUser);
         }
         $q.notify({
           type: 'positive',
           message: 'User updated successfully!',
         });
         createNew = false;
-        user = response.data;
+        user = newUser;
       })
       .catch((error) => {
         if (process.env.debug) {
@@ -238,7 +253,7 @@ function onSubmit() {
         }
         $q.notify({
           type: 'negative',
-          message: error.response.data.detail,
+          message: error.message,
         });
       });
   }

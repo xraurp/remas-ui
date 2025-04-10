@@ -70,7 +70,7 @@ const leftDrawerContent = [
     pages: [
       {
         label: 'Tasks',
-        link: '/tasks',
+        link: 'tasks',
       },
     ],
   },
@@ -80,11 +80,11 @@ const leftDrawerContent = [
     pages: [
       {
         label: 'Cluster status',
-        link: '/cluster-status',
+        link: 'cluster-status',
       },
       {
         label: 'All tasks',
-        link: '/all-tasks',
+        link: 'all-tasks',
       },
     ],
   },
@@ -94,15 +94,15 @@ const leftDrawerContent = [
     pages: [
       {
         label: 'Users',
-        link: 'user', // TODO -- change to users
+        link: 'users',
       },
       {
         label: 'Groups',
-        link: '/groups',
+        link: 'groups',
       },
       {
         label: 'Nodes',
-        link: '/nodes',
+        link: 'nodes',
       },
     ],
   },
@@ -112,11 +112,12 @@ const leftDrawerContent = [
     pages: [
       {
         label: 'Notifications',
-        link: '/notifications',
+        link: 'notifications',
       },
       {
         label: 'Resource limits',
-        link: '/resource-limits',
+        link: 'resource-limits',
+        adminOnly: true,
       },
     ],
   },
