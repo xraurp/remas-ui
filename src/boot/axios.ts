@@ -62,6 +62,7 @@ export default defineBoot(({ app }) => {
           .then((response) => {
             if (process.env.debug) {
               console.log(response);
+              console.log('Token refreshed!');
             }
             authStore.setTokens(
               response.data.access_token,
@@ -80,6 +81,8 @@ export default defineBoot(({ app }) => {
       // Add token to request
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
+      } else {
+        return Promise.reject(new Error('Login to continue!'));
       }
       return config;
     },
