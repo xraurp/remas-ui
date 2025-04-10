@@ -86,7 +86,7 @@ function authenticate() {
         response.data.access_token,
         response.data.refresh_token,
       );
-      router.push({ name: 'user' }).catch((err) => {
+      router.push({ path: '/' }).catch((err) => {
         console.log(err);
         error_msg.value = err.message;
       });

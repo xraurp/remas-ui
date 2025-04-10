@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
+    path: '/login',
     component: () => import('layouts/LoginLayout.vue'),
     children: [
       {
@@ -13,15 +13,28 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/main-page',
+    path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
   {
-    path: '/user',
+    path: '/users',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: true },
     children: [
-      { path: '', name: 'user', component: () => import('pages/UserPage.vue') },
+      {
+        path: '',
+        name: 'users',
+        component: () => import('pages/UserList.vue'),
+        meta: { adminOnly: true },
+      },
+      {
+        path: ':id',
+        name: 'user',
+        component: () => import('pages/UserPage.vue'),
+        meta: { adminOnly: true },
+        props: true,
+      },
     ],
   },
 
