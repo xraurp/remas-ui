@@ -35,6 +35,12 @@ const routes: RouteRecordRaw[] = [
         meta: { adminOnly: true },
         props: true,
       },
+      {
+        path: 'new',
+        name: 'user-new',
+        component: () => import('pages/UserPage.vue'),
+        meta: { adminOnly: true },
+      },
     ],
   },
 
