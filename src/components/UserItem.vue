@@ -9,7 +9,9 @@
         <q-separator />
         <div class="row">
           <div v-if="showName" class="text-subtitle col">Username:</div>
-          <div class="text-subtitle col">{{ props.user.username }}</div>
+          <div v-if="showName" class="text-subtitle col">
+            {{ props.user.username }}
+          </div>
         </div>
         <div class="row">
           <div class="text-subtitle col">Group:</div>

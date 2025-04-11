@@ -27,24 +27,7 @@
             class="col"
             :disable="readOnly"
           />
-          <q-input
-            outlined
-            v-model="password"
-            :type="showPasswd ? 'text' : 'password'"
-            label="Password"
-            :rules="[(val) => !!val || 'Password is required']"
-            class="col"
-            :disable="readOnly"
-          >
-            <template v-slot:append>
-              <q-icon
-                :name="showPasswd ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="showPasswd = !showPasswd"
-                :disable="readOnly"
-              />
-            </template>
-          </q-input>
+          <div class="col"></div>
         </div>
         <div class="row q-gutter-sm" style="padding-bottom: 5px">
           <q-input
@@ -53,15 +36,15 @@
             label="Username used on nodes"
             :rules="[(val) => !!val || 'Username is required']"
             class="col"
-            :disable="readOnly"
+            :disable="true"
           />
           <q-input
             outlined
-            v-model="userEdit.uid"
+            v-model="uid"
             label="UID used on nodes"
             :rules="[(val) => !!val || 'UID is required']"
             class="col"
-            :disable="readOnly"
+            :disable="readOnly || isProfile"
           />
         </div>
         <div class="row q-gutter-sm" style="padding-bottom: 25px">
@@ -71,12 +54,14 @@
             :options="options"
             label="Select user group"
             class="col"
-            :disable="readOnly"
-          />
+            :disable="readOnly || isProfile"
+          >
+            <template #after-options></template>
+          </q-select>
         </div>
         <div class="row q-gutter-sm" v-if="!readOnly">
           <q-btn
-            label="Create user"
+            label="Update user"
             type="submit"
             color="primary"
             class="col"
@@ -88,34 +73,64 @@
           <div class="col"></div>
         </div>
       </q-form>
+      <div>
+        <div class="row q-gutter-sm" v-if="showChangePassword">
+          <UserChangePassword
+            :user="userEdit"
+            @closePasswordDialog="showChangePassword = false"
+            :setPasswd="!isProfile"
+          />
+        </div>
+        <div class="row q-gutter-sm" v-if="!showChangePassword">
+          <q-btn
+            label="Change password"
+            color="primary"
+            class="col"
+            @click="showChangePassword = true"
+          />
+          <div class="col"></div>
+        </div>
+      </div>
     </div>
-    <!-- TODO - add notification and limit list and editor -->
-    <!-- TODO - add 'add' button with validation -->
   </div>
 </template>
 
 <script setup lang="ts">
 import type { User, Group } from 'src/components/db_models';
 import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useUserGroupStore } from 'src/stores/user-group-store';
+import { getMessageFromError } from './aux_functions';
+import UserChangePassword from './UserChangePassword.vue';
 
 const props = defineProps<{
   user_id?: number;
-  createNew: boolean;
+  is_profile?: boolean;
 }>();
 
 const userGroupStore = useUserGroupStore();
-const router = useRouter();
 const $q = useQuasar();
 
 onMounted(async () => {
-  if (!userGroupStore.users.length) {
-    await userGroupStore.fetchUsers();
-  }
-  if (!userGroupStore.groups.length) {
-    await userGroupStore.fetchGroups();
+  try {
+    if (!userGroupStore.getUsers.length) {
+      await userGroupStore.fetchUsers();
+    }
+    if (!userGroupStore.getGroups.length) {
+      await userGroupStore.fetchGroups();
+    }
+  } catch (error) {
+    if (process.env.debug) {
+      console.log(error);
+    }
+    const message = getMessageFromError(
+      error,
+      'Failed to fetch users and groups!',
+    );
+    $q.notify({
+      type: 'negative',
+      message: message,
+    });
   }
 });
 
@@ -125,7 +140,7 @@ let user: User | undefined = undefined;
 if (props.user_id) {
   user = userGroupStore.getUserById(props.user_id);
 }
-let createNew = props.createNew;
+const isProfile = props.is_profile || false;
 
 /**
  * Returns the name of the group that the user belongs to,
@@ -136,63 +151,149 @@ function getDefaultSelectedGroup() {
   return groups.find((group) => group.id === user?.group?.id)?.name || 'Users';
 }
 
-const readOnly = ref(!createNew);
-const selectedGroupName = ref(getDefaultSelectedGroup());
-const showPasswd = ref(false);
+/**
+ * Creates a copy of the user object.
+ * @param user The user object to copy.
+ * @returns A new user object.
+ */
+function copyUser(user?: User) {
+  return <User>{
+    id: user?.id || undefined,
+    name: user?.name || '',
+    surname: user?.surname || '',
+    email: user?.email || '',
+    username: user?.username || '',
+    uid: user?.uid || 0,
+    group_id: user?.group?.id || 3,
+  };
+}
 
+function compareUsers(user1?: User, user2?: User) {
+  let cmp = user1?.id === user2?.id;
+  cmp = cmp && user1?.name === user2?.name;
+  cmp = cmp && user1?.surname === user2?.surname;
+  cmp = cmp && user1?.email === user2?.email;
+  cmp = cmp && user1?.username === user2?.username;
+  cmp = cmp && user1?.uid === user2?.uid;
+  cmp = cmp && user1?.group_id === user2?.group_id;
+  return cmp;
+}
+
+const readOnly = ref(true);
+const selectedGroupName = ref(getDefaultSelectedGroup());
+const changeGroup = ref(false);
+const showChangePassword = ref(false);
+
+// list of options for select group dropdown
 const options = computed(() => {
   return Array.from(groups.values()).map((group) => group.name);
 });
 
-const password = ref('');
-const userEdit = ref<User>({
-  name: '',
-  surname: '',
-  uid: 0,
-  username: '',
-  email: '',
-  group_id: 3,
-});
-
-if (user) {
-  userEdit.value = user;
-}
+const userEdit = ref<User>(copyUser(user));
+const uid = ref(user?.uid?.toString() || '');
 
 /**
- * Assignes the group ID according to the group name selected by the user.
+ * Change user group.
  * If the group name is not found, it defaults to "Users".
  * @param name The name of the group
  */
-function assignGroupIdToUser(name: string) {
+function changeUserGroup(name: string) {
   const group_id = groups.find((group) => group.name === name)?.id;
+  // check if group stays the same
+  if (userEdit.value.group_id === group_id) {
+    return;
+  }
+
+  // assign new group to user
   if (group_id) {
     userEdit.value.group_id = group_id;
   } else {
     userEdit.value.group_id = 3;
   }
+
+  // check if group exists
+  const group = groups.find((group) => group.id === userEdit.value.group_id);
+  if (!group) {
+    return;
+  }
+
+  // add user to group
+  userGroupStore
+    .addUserToGroup(userEdit.value, group)
+    .then(() => {
+      $q.notify({
+        type: 'positive',
+        message: 'User added to group successfully!',
+      });
+    })
+    .catch((error) => {
+      if (process.env.debug) {
+        console.log(error);
+      }
+      $q.notify({
+        type: 'negative',
+        message: error.message,
+      });
+    });
+}
+
+/**
+ * Update user data.
+ */
+function updateUserData() {
+  if (
+    compareUsers(userEdit.value, user) &&
+    uid.value === user?.uid?.toString()
+  ) {
+    $q.notify({
+      type: 'info',
+      color: 'primary',
+      message: 'No changes detected.',
+    });
+    return;
+  }
+
+  if (uid.value) {
+    userEdit.value.uid = parseInt(uid.value);
+    if (isNaN(userEdit.value.uid)) {
+      throw new Error('UID must be a number!');
+    }
+  } else {
+    throw new Error('UID is required!');
+  }
+
+  userGroupStore
+    .updateUser(userEdit.value)
+    .then((newUser) => {
+      if (process.env.debug) {
+        console.log(newUser);
+      }
+      $q.notify({
+        type: 'positive',
+        message: 'User updated successfully!',
+      });
+      user = newUser;
+      userEdit.value = newUser;
+    })
+    .catch((error) => {
+      if (process.env.debug) {
+        console.log(error);
+      }
+      $q.notify({
+        type: 'negative',
+        message: error.message,
+      });
+    });
 }
 
 /**
  * Resets the form to its initial state
  */
 function onCancel() {
-  if (createNew) {
-    router.back();
-  } else {
-    readOnly.value = true;
-    if (user) {
-      userEdit.value = user;
-    } else {
-      userEdit.value = {
-        name: '',
-        surname: '',
-        uid: 0,
-        username: '',
-        email: '',
-        group_id: 3,
-      };
-    }
-  }
+  readOnly.value = true;
+  changeGroup.value = false;
+  userEdit.value = copyUser(user);
+  uid.value = user?.uid?.toString() || '';
 }
 
 function onEdit() {
@@ -200,62 +301,18 @@ function onEdit() {
 }
 
 function onSubmit() {
-  assignGroupIdToUser(selectedGroupName.value);
   readOnly.value = true;
-
-  if (createNew) {
-    const userWPasswd = {
-      ...userEdit.value,
-      password: password.value,
-    };
-
-    userGroupStore
-      .createUser(userWPasswd)
-      .then((newUser) => {
-        if (process.env.debug) {
-          console.log(newUser);
-        }
-        $q.notify({
-          type: 'positive',
-          message: 'User created successfully!',
-        });
-        createNew = false;
-        user = newUser;
-      })
-      .catch((error) => {
-        if (process.env.debug) {
-          console.log(error);
-        }
-        $q.notify({
-          type: 'negative',
-          message: error.message,
-        });
-      });
-  }
-  // update existing user
-  else {
-    userGroupStore
-      .updateUser(userEdit.value)
-      .then((newUser) => {
-        if (process.env.debug) {
-          console.log(newUser);
-        }
-        $q.notify({
-          type: 'positive',
-          message: 'User updated successfully!',
-        });
-        createNew = false;
-        user = newUser;
-      })
-      .catch((error) => {
-        if (process.env.debug) {
-          console.log(error);
-        }
-        $q.notify({
-          type: 'negative',
-          message: error.message,
-        });
-      });
+  changeUserGroup(selectedGroupName.value);
+  try {
+    updateUserData();
+  } catch (error) {
+    if (process.env.debug) {
+      console.log(error);
+    }
+    $q.notify({
+      type: 'negative',
+      message: getMessageFromError(error, 'Failed to update user!'),
+    });
   }
 }
 </script>

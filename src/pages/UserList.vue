@@ -2,6 +2,7 @@
   <q-page padding>
     <div class="text-h3">Users</div>
     <q-separator class="q-mb-md" />
+    <q-btn color="green" label="Add user" @click="addUser" />
     <div class="q-pa-md row items-start q-gutter-md">
       <template v-for="user in users">
         <user-item
@@ -33,5 +34,9 @@ onMounted(async () => {
 });
 async function editFunction(user: User) {
   await router.push({ name: 'user', params: { id: user.id } });
+}
+
+async function addUser() {
+  await router.push({ name: 'user', params: { id: 'new' } });
 }
 </script>

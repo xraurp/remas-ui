@@ -1,20 +1,10 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import type { User, UserWithPassword, Group } from 'src/components/db_models';
 import { api } from 'src/boot/axios';
-import { AxiosError } from 'axios';
+import { getMessageFromError } from 'src/components/aux_functions';
 
 const userBasePath = '/user';
 const groupBasePath = '/group';
-
-function getMessageFromError(error: unknown, defaultMessage: string) {
-  let errorMessage = defaultMessage;
-  if (error instanceof AxiosError) {
-    errorMessage = error.response?.data.detail;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
-  }
-  return errorMessage;
-}
 
 export const useUserGroupStore = defineStore('userGroupStore', {
   state: () => ({
@@ -144,7 +134,7 @@ export const useUserGroupStore = defineStore('userGroupStore', {
       }
       this.groups = this.groups.filter((g) => g.id !== group.id);
     },
-    async addUserToGroup(user: User, group: Group): Promise<User> {
+    async addUserToGroup(user: User, group: Group): Promise<Group> {
       const message = {
         user_id: user.id,
         group_id: group.id,
@@ -183,7 +173,7 @@ export const useUserGroupStore = defineStore('userGroupStore', {
     async setUserPassword(user: User, password: string): Promise<string> {
       const message = {
         user_id: user.id,
-        password: password,
+        new_password: password,
       };
       let response = null;
       try {

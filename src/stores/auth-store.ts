@@ -1,6 +1,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { type User } from 'src/components/db_models';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { api } from 'src/boot/axios';
+import { getMessageFromError } from 'src/components/aux_functions';
 
 interface CustomPayload extends JwtPayload {
   is_admin: boolean;
@@ -70,6 +72,34 @@ export const useAuthStore = defineStore('auth', {
     },
     setUser(user: User) {
       this.user = user;
+    },
+    async fetchUser() {
+      let response = null;
+      try {
+        response = await api.get(`/user/${this.getUserId}`);
+      } catch (error) {
+        if (process.env.debug) {
+          console.log(error);
+        }
+        throw new Error(getMessageFromError(error, 'Failed to fetch user!'));
+      }
+      this.user = response.data;
+    },
+    async updateUserPassword(newPassword: string, oldPassword: string) {
+      const message = {
+        new_password: newPassword,
+        old_password: oldPassword,
+      };
+      try {
+        await api.post('/authentication/update_password', message);
+      } catch (error) {
+        if (process.env.debug) {
+          console.log(error);
+        }
+        throw new Error(
+          getMessageFromError(error, 'Failed to update user password!'),
+        );
+      }
     },
   },
 });
