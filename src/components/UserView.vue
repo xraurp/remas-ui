@@ -175,7 +175,6 @@ function compareUsers(user1?: User, user2?: User) {
   cmp = cmp && user1?.email === user2?.email;
   cmp = cmp && user1?.username === user2?.username;
   cmp = cmp && user1?.uid === user2?.uid;
-  cmp = cmp && user1?.group_id === user2?.group_id;
   return cmp;
 }
 
@@ -193,29 +192,30 @@ const userEdit = ref<User>(copyUser(user));
 const uid = ref(user?.uid?.toString() || '');
 
 /**
- * Change user group.
- * If the group name is not found, it defaults to "Users".
+ * Returns the group object for the selected group name.
  * @param name The name of the group
+ * @returns The group object for the selected group name.
  */
-function changeUserGroup(name: string) {
-  const group_id = groups.find((group) => group.name === name)?.id;
+function getNewGroup(name: string) {
+  const group = groups.find((group) => group.name === name);
   // check if group stays the same
-  if (userEdit.value.group_id === group_id) {
-    return;
+  if (userEdit.value.group_id === group?.id) {
+    return undefined;
   }
 
-  // assign new group to user
-  if (group_id) {
-    userEdit.value.group_id = group_id;
-  } else {
-    userEdit.value.group_id = 3;
-  }
+  return group;
+}
 
-  // check if group exists
-  const group = groups.find((group) => group.id === userEdit.value.group_id);
+/**
+ * Change user group.
+ * @param group The group object
+ */
+function changeUserGroup(group?: Group) {
   if (!group) {
     return;
   }
+  // assign new group to user (or default to "Users")
+  userEdit.value.group_id = group?.id || 3;
 
   // add user to group
   userGroupStore
@@ -225,6 +225,7 @@ function changeUserGroup(name: string) {
         type: 'positive',
         message: 'User added to group successfully!',
       });
+      readOnly.value = true;
     })
     .catch((error) => {
       if (process.env.debug) {
@@ -232,7 +233,7 @@ function changeUserGroup(name: string) {
       }
       $q.notify({
         type: 'negative',
-        message: error.message,
+        message: getMessageFromError(error, 'Failed to change user group!'),
       });
     });
 }
@@ -245,11 +246,6 @@ function updateUserData() {
     compareUsers(userEdit.value, user) &&
     uid.value === user?.uid?.toString()
   ) {
-    $q.notify({
-      type: 'info',
-      color: 'primary',
-      message: 'No changes detected.',
-    });
     return;
   }
 
@@ -273,7 +269,8 @@ function updateUserData() {
         message: 'User updated successfully!',
       });
       user = newUser;
-      userEdit.value = newUser;
+      userEdit.value = copyUser(newUser);
+      readOnly.value = true;
     })
     .catch((error) => {
       if (process.env.debug) {
@@ -301,8 +298,21 @@ function onEdit() {
 }
 
 function onSubmit() {
-  readOnly.value = true;
-  changeUserGroup(selectedGroupName.value);
+  const newGroup = getNewGroup(selectedGroupName.value);
+  if (
+    !newGroup &&
+    compareUsers(userEdit.value, user) &&
+    uid.value === user?.uid?.toString()
+  ) {
+    $q.notify({
+      type: 'info',
+      color: 'primary',
+      message: 'No changes detected.',
+    });
+    readOnly.value = true;
+    return;
+  }
+  changeUserGroup(newGroup);
   try {
     updateUserData();
   } catch (error) {
@@ -313,6 +323,7 @@ function onSubmit() {
       type: 'negative',
       message: getMessageFromError(error, 'Failed to update user!'),
     });
+    return;
   }
 }
 </script>

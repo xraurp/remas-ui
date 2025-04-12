@@ -31,10 +31,10 @@
     </q-card-section>
 
     <q-card-actions align="around">
-      <q-btn flat color="orange" @click="props.editFunction(props.user)"
+      <q-btn flat color="primary" @click="props.editFunction(props.user)"
         >Edit</q-btn
       >
-      <q-btn flat color="red" @click="delUser(props.user)">Delete</q-btn>
+      <q-btn flat color="negative" @click="delUser(props.user)">Delete</q-btn>
     </q-card-actions>
   </q-card>
 </template>
@@ -43,6 +43,7 @@
 import { computed } from 'vue';
 import type { User } from './db_models';
 import { useQuasar } from 'quasar';
+import { getMessageFromError } from './aux_functions';
 
 const props = defineProps<{
   user: User;
@@ -70,17 +71,10 @@ async function delUser(user: User) {
     if (process.env.dev) {
       console.log(error);
     }
-    if (error instanceof Error) {
-      $q.notify({
-        type: 'negative',
-        message: error.message,
-      });
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: 'Failed to delete user!',
-      });
-    }
+    $q.notify({
+      type: 'negative',
+      message: getMessageFromError(error, 'Failed to delete user!'),
+    });
   }
 }
 </script>

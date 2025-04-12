@@ -72,8 +72,6 @@
         </div>
       </q-form>
     </div>
-    <!-- TODO - add notification and limit list and editor -->
-    <!-- TODO - add 'add' button with validation -->
   </div>
 </template>
 
@@ -192,7 +190,7 @@ function onSubmit() {
       }
       $q.notify({
         type: 'negative',
-        message: error.message,
+        message: getMessageFromError(error, 'Failed to create user!'),
       });
     });
 }
