@@ -43,6 +43,32 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/groups',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: true },
+    children: [
+      {
+        path: '',
+        name: 'groups',
+        component: () => import('pages/GroupList.vue'),
+        meta: { adminOnly: true },
+      },
+      {
+        path: ':id',
+        name: 'group',
+        component: () => import('pages/GroupPage.vue'),
+        meta: { adminOnly: true },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'group-new',
+        component: () => import('pages/GroupPage.vue'),
+        meta: { adminOnly: true },
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

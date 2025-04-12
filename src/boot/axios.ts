@@ -32,7 +32,7 @@ export default defineBoot(({ app }) => {
   //       so you can easily perform requests against your app's API
 
   api.interceptors.request.use(
-    function (config) {
+    async function (config) {
       // Skip adding token to authentication endpoints
       if (config.url === '/authentication/token') {
         return config;
@@ -46,14 +46,14 @@ export default defineBoot(({ app }) => {
       if (!refreshToken) {
         return Promise.reject(new Error('Login to continue!'));
       }
-      if (authStore.isRefreshTokenExpired) {
+      if (authStore.isRefreshTokenExpired()) {
         return Promise.reject(new Error('Login has expired!'));
       }
 
       let accessToken = authStore.getAccessToken;
       // Refresh access token if expired
-      if (!accessToken || authStore.isAccessTokenExpired) {
-        api
+      if (authStore.isAccessTokenExpired()) {
+        await api
           .post('/authentication/refresh', null, {
             headers: {
               Authorization: `Bearer ${refreshToken}`,

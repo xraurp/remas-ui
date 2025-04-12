@@ -37,7 +37,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   // Redirect to login if not logged in
   Router.beforeEach((to) => {
-    if (authStore.isRefreshTokenExpired && to.name !== 'login') {
+    if (authStore.isRefreshTokenExpired() && to.name !== 'login') {
       return { name: 'login' };
     }
     return true;

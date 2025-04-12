@@ -12,8 +12,8 @@ interface CustomPayload extends JwtPayload {
 
 function getUTCTime() {
   const date = new Date();
-  let secNow = Math.floor(date.getTime() / 1000);
-  secNow += date.getTimezoneOffset() * 60;
+  const secNow = Math.ceil(date.getTime() / 1000);
+  //secNow += date.getTimezoneOffset() * 60;
   return secNow;
 }
 
@@ -24,30 +24,6 @@ export const useAuthStore = defineStore('auth', {
     user: <User>{},
   }),
   getters: {
-    isRefreshTokenExpired: (state) => {
-      if (!state.refreshToken) {
-        return true;
-      }
-      const decodeTokenExpiration = jwtDecode<CustomPayload>(
-        state.refreshToken,
-      ).exp;
-      if (decodeTokenExpiration) {
-        return decodeTokenExpiration < getUTCTime();
-      }
-      return true;
-    },
-    isAccessTokenExpired: (state) => {
-      if (!state.accessToken) {
-        return true;
-      }
-      const decodeTokenExpiration = jwtDecode<CustomPayload>(
-        state.accessToken,
-      ).exp;
-      if (decodeTokenExpiration) {
-        return decodeTokenExpiration < getUTCTime();
-      }
-      return true;
-    },
     isAdmin: (state) => {
       if (!state.refreshToken) {
         return false;
@@ -66,6 +42,30 @@ export const useAuthStore = defineStore('auth', {
     getRefreshToken: (state) => state.refreshToken,
   },
   actions: {
+    isRefreshTokenExpired() {
+      if (!this.refreshToken) {
+        return true;
+      }
+      const decodeTokenExpiration = jwtDecode<CustomPayload>(
+        this.refreshToken,
+      ).exp;
+      if (decodeTokenExpiration) {
+        return decodeTokenExpiration < getUTCTime();
+      }
+      return true;
+    },
+    isAccessTokenExpired() {
+      if (!this.accessToken) {
+        return true;
+      }
+      const decodeTokenExpiration = jwtDecode<CustomPayload>(
+        this.accessToken,
+      ).exp;
+      if (decodeTokenExpiration) {
+        return decodeTokenExpiration < getUTCTime();
+      }
+      return true;
+    },
     setTokens(accessToken: string, refreshToken: string) {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       let response = null;
       try {
-        response = await api.get(`/user/${this.getUserId}`);
+        response = await api.get(`/user/${this.user.id}`);
       } catch (error) {
         if (process.env.debug) {
           console.log(error);
