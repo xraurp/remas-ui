@@ -2,14 +2,16 @@
   <q-card class="q-gutter-md q-pa-md">
     <q-card-section>
       <div class="text-h6">{{ props.group.name }}</div>
-      <q-separator v-if="props.group.parent" />
+      <q-separator />
       <div class="row" v-if="props.group.parent">
         <div class="text-subtitle col">Parent name:</div>
         <div class="text-subtitle col">{{ props.group.parent?.name }}</div>
       </div>
-      <q-separator />
-      <div class="text-subtitle">Description:</div>
-      <div class="text-subtitle">{{ props.group.description }}</div>
+      <q-separator v-if="props.group.description" />
+      <div v-if="props.group.description">
+        <div class="text-subtitle">Description:</div>
+        <div class="text-subtitle">{{ props.group.description }}</div>
+      </div>
     </q-card-section>
     <q-card-actions align="around">
       <q-btn flat color="primary" @click="props.editFunction(props.group)"
