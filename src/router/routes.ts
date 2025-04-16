@@ -15,7 +15,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    // TODO - change to task list!
+    children: [{ path: '', component: () => import('pages/UserList.vue') }],
   },
   {
     path: '/users',
@@ -65,6 +66,58 @@ const routes: RouteRecordRaw[] = [
         path: 'new',
         name: 'group-new',
         component: () => import('pages/GroupPage.vue'),
+        meta: { adminOnly: true },
+      },
+    ],
+  },
+  {
+    path: '/nodes',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: true },
+    children: [
+      {
+        path: '',
+        name: 'nodes',
+        component: () => import('pages/NodeList.vue'),
+        meta: { adminOnly: true },
+      },
+      {
+        path: ':id',
+        name: 'node',
+        component: () => import('pages/NodePage.vue'),
+        meta: { adminOnly: true },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'node-new',
+        component: () => import('pages/NodePage.vue'),
+        meta: { adminOnly: true },
+      },
+    ],
+  },
+  {
+    path: '/resources',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: true },
+    children: [
+      {
+        path: '',
+        name: 'resources',
+        component: () => import('pages/ResourceList.vue'),
+        meta: { adminOnly: true },
+      },
+      {
+        path: ':id',
+        name: 'resource',
+        component: () => import('pages/ResourcePage.vue'),
+        meta: { adminOnly: true },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'resource-new',
+        component: () => import('pages/ResourcePage.vue'),
         meta: { adminOnly: true },
       },
     ],

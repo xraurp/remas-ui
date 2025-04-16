@@ -104,6 +104,10 @@ const leftDrawerContent = [
         label: 'Nodes',
         link: 'nodes',
       },
+      {
+        label: 'Resources',
+        link: 'resources',
+      },
     ],
   },
   {
