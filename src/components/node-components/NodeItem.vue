@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Node, NodeResource } from './db_models';
-import { getAmountStr } from './aux_functions';
+import type { Node, NodeResource } from '../db_models';
+import { getAmountStr } from '../aux_functions';
 const props = defineProps<{
   node: Node;
 }>();

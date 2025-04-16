@@ -73,11 +73,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { type User } from './db_models';
+import { type User } from '../db_models';
 import { useUserGroupStore } from 'src/stores/user-group-store';
 import { useAuthStore } from 'src/stores/auth-store';
 import { useQuasar } from 'quasar';
-import { getMessageFromError } from './aux_functions';
+import { getMessageFromError } from '../aux_functions';
 
 const props = defineProps<{
   user: User;

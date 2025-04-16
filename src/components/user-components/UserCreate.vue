@@ -81,7 +81,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useUserGroupStore } from 'src/stores/user-group-store';
-import { getMessageFromError } from './aux_functions';
+import { getMessageFromError } from '../aux_functions';
 
 const userGroupStore = useUserGroupStore();
 const router = useRouter();

@@ -100,7 +100,7 @@ import type { User, Group } from 'src/components/db_models';
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserGroupStore } from 'src/stores/user-group-store';
-import { getMessageFromError } from './aux_functions';
+import { getMessageFromError } from '../aux_functions';
 import UserChangePassword from './UserChangePassword.vue';
 
 const props = defineProps<{

@@ -106,10 +106,10 @@ import { computed, onMounted, ref } from 'vue';
 import {
   getBytesConversionInverse,
   getMessageFromError,
-} from './aux_functions';
+} from '../aux_functions';
 import { useQuasar } from 'quasar';
-import type { NodeResource, Resource } from './db_models';
-import { Unit } from './db_models';
+import type { NodeResource, Resource } from '../db_models';
+import { Unit } from '../db_models';
 import ResourceItem from './ResourceItem.vue';
 import ResourceAmountDialog from './ResourceAmountDialog.vue';
 

@@ -52,8 +52,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useUserGroupStore } from 'src/stores/user-group-store';
-import { type Group } from './db_models';
-import { getMessageFromError } from './aux_functions';
+import { type Group } from '../db_models';
+import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 
 const props = defineProps<{

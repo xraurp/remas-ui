@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getMessageFromError } from './aux_functions';
+import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 

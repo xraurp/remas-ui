@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { Unit } from './db_models';
+import { Unit } from '../db_models';
 import { ref } from 'vue';
-import { getBytesConversion, getUnitList } from './aux_functions';
+import { getBytesConversion, getUnitList } from '../aux_functions';
 
 const props = defineProps<{
   startingAmount: number | undefined;

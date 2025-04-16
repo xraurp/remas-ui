@@ -41,9 +41,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { User } from './db_models';
+import type { User } from '../db_models';
 import { useQuasar } from 'quasar';
-import { getMessageFromError } from './aux_functions';
+import { getMessageFromError } from '../aux_functions';
 
 const props = defineProps<{
   user: User;

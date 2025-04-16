@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { getMessageFromError } from './aux_functions';
-import { type Group } from './db_models';
+import { getMessageFromError } from '../aux_functions';
+import { type Group } from '../db_models';
 import { useQuasar } from 'quasar';
 
 const props = defineProps<{
