@@ -8,6 +8,7 @@
             v-model="groupName"
             label="Group name"
             :disable="readOnly"
+            :rules="[(val) => !!val || 'Group must have a name']"
           />
           <q-input
             outlined

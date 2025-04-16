@@ -3,7 +3,12 @@
     <div class="q-gutter-md" style="max-width: 600px">
       <q-form @reset="onCancel" @submit="onSubmit">
         <div class="q-gutter-sm" style="padding-bottom: 5px">
-          <q-input outlined v-model="groupName" label="Group name" />
+          <q-input
+            outlined
+            v-model="groupName"
+            label="Group name"
+            :rules="[(val) => !!val || 'Group must have a name']"
+          />
           <q-input
             outlined
             v-model="description"

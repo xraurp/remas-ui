@@ -8,6 +8,7 @@
             v-model="resourceName"
             label="Resource name"
             :disable="readOnly"
+            :rules="[(val) => !!val || 'Resource must have a name']"
           />
           <q-input
             outlined

@@ -8,6 +8,7 @@
             v-model="nodeName"
             label="Node name"
             :disable="readOnly"
+            :rules="[(val) => !!val || 'Node must have a name']"
           />
           <q-input
             outlined
