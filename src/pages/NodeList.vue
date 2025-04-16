@@ -28,7 +28,7 @@ import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { getMessageFromError } from 'src/components/aux_functions';
-import NodeItem from 'src/components/NodeItem.vue';
+import NodeItem from 'src/components/node-components/NodeItem.vue';
 import { useRouter } from 'vue-router';
 import { type Node } from 'src/components/db_models';
 

@@ -6,8 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import NodeView from 'src/components/NodeView.vue';
-import NodeCreate from 'src/components/NodeCreate.vue';
+import NodeView from 'src/components/node-components/NodeView.vue';
+import NodeCreate from 'src/components/node-components/NodeCreate.vue';
 import { getNumericId } from 'src/components/aux_functions';
 import { computed } from 'vue';
 

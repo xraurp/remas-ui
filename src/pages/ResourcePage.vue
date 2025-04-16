@@ -7,8 +7,8 @@
 
 <script setup lang="ts">
 import { getNumericId } from 'src/components/aux_functions';
-import ResourceCreate from 'src/components/ResourceCreate.vue';
-import ResourceView from 'src/components/ResourceView.vue';
+import ResourceCreate from 'src/components/resource-components/ResourceCreate.vue';
+import ResourceView from 'src/components/resource-components/ResourceView.vue';
 import { computed } from 'vue';
 
 const props = defineProps<{

@@ -110,8 +110,8 @@ import {
 import { useQuasar } from 'quasar';
 import type { NodeResource, Resource } from '../db_models';
 import { Unit } from '../db_models';
-import ResourceItem from './ResourceItem.vue';
-import ResourceAmountDialog from './ResourceAmountDialog.vue';
+import ResourceItem from 'src/components/resource-components/ResourceItem.vue';
+import ResourceAmountDialog from 'src/components/resource-components/ResourceAmountDialog.vue';
 
 const props = defineProps<{
   node_id: number;

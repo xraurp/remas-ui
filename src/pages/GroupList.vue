@@ -25,7 +25,7 @@ import { computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { getMessageFromError } from 'src/components/aux_functions';
 import { type Group } from 'src/components/db_models';
-import GroupItem from 'src/components/GroupItem.vue';
+import GroupItem from 'src/components/group-components/GroupItem.vue';
 
 const router = useRouter();
 const userGroupStore = useUserGroupStore();

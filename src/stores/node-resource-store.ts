@@ -51,10 +51,9 @@ export const useNodeResourceStore = defineStore('nodeResourceStore', {
     },
     async deleteNode(node: Node): Promise<void> {
       await apiRequest<Node, object>(
-        nodeBasePath,
+        `${nodeBasePath}/${node.id}`,
         'Failed to delete node!',
         'delete',
-        node,
       );
       this.nodes = this.nodes.filter((n) => n.id !== node.id);
     },
@@ -139,10 +138,9 @@ export const useNodeResourceStore = defineStore('nodeResourceStore', {
 
     async deleteResource(resource: Resource): Promise<void> {
       await apiRequest<Resource, object>(
-        resourceBasePath,
+        `${resourceBasePath}/${resource.id}`,
         'Failed to delete resource!',
         'delete',
-        resource,
       );
       this.resources = this.resources.filter((r) => r.id !== resource.id);
     },
@@ -204,10 +202,9 @@ export const useNodeResourceStore = defineStore('nodeResourceStore', {
     },
     async deleteResourceAlias(resource_alias: ResourceAlias): Promise<void> {
       await apiRequest<ResourceAlias, object>(
-        resourceAliasBasePath,
+        `${resourceAliasBasePath}/${resource_alias.id}`,
         'Failed to delete resource alias!',
         'delete',
-        resource_alias,
       );
       this.resource_aliases = this.resource_aliases.filter(
         (ra) => ra.id !== resource_alias.id,

@@ -31,7 +31,7 @@ import { getMessageFromError } from 'src/components/aux_functions';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import ResourceItem from 'src/components/ResourceItem.vue';
+import ResourceItem from 'src/components/resource-components/ResourceItem.vue';
 import type { Resource } from 'src/components/db_models';
 
 const $q = useQuasar();

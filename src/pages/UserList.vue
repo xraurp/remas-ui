@@ -22,7 +22,7 @@
 import { useQuasar } from 'quasar';
 import { getMessageFromError } from 'src/components/aux_functions';
 import { type User } from 'src/components/db_models';
-import UserItem from 'src/components/UserItem.vue';
+import UserItem from 'src/components/user-components/UserItem.vue';
 import { useUserGroupStore } from 'src/stores/user-group-store';
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';

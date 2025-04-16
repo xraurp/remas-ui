@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import UserView from 'src/components/UserView.vue';
-import UserCreate from 'src/components/UserCreate.vue';
+import UserView from 'src/components/user-components/UserView.vue';
+import UserCreate from 'src/components/user-components/UserCreate.vue';
 import { computed } from 'vue';
 import { getNumericId } from 'src/components/aux_functions';
 
