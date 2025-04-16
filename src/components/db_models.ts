@@ -5,14 +5,29 @@
 /* Do not modify it by hand - just update the pydantic models and then re-run the script
 */
 
-export type EventType = 'task_start' | 'task_end' | 'other';
-export type NotificationType =
-  | 'task_start'
-  | 'task_end'
-  | 'grafana_resource_exceedance_task'
-  | 'grafana_resource_exceedance_general'
-  | 'other';
-export type TaskStatus = 'scheduled' | 'running' | 'finished';
+export enum EventType {
+  task_start = 'task_start',
+  task_end = 'task_end',
+  other = 'other',
+}
+export enum NotificationType {
+  task_start = 'task_start',
+  task_end = 'task_end',
+  grafana_resource_exceedance = 'grafana_resource_exceedance_task',
+  grafana_resource_exceedance_general = 'grafana_resource_exceedance_general',
+  other = 'other',
+}
+export enum TaskStatus {
+  scheduled = 'scheduled',
+  running = 'running',
+  finished = 'finished',
+}
+
+export enum Unit {
+  NONE = '',
+  BYTES_SI = 'Bytes (SI)',
+  BYTES_IEC = 'Bytes (IEC)',
+}
 
 export interface Event {
   id?: number;
@@ -53,7 +68,7 @@ export interface Node {
   id?: number;
   name: string;
   description?: string | null;
-  resources?: Resource[];
+  resources?: NodeResource[];
   limits?: Limit[];
 }
 /**
@@ -90,6 +105,11 @@ export interface Resource {
   id?: number;
   name: string;
   description?: string | null;
+  unit: Unit;
+  nodes?: Node[];
+  limits?: Limit[];
+  aliases?: ResourceAlias[];
+  notifications?: Notification[];
 }
 /**
  * Alias is an additional name for a resource, like "cpu" or "gpu".
@@ -98,10 +118,7 @@ export interface ResourceAlias {
   id?: number;
   name: string;
   description?: string | null;
-  nodes?: Node[];
-  limits?: Limit[];
-  aliases?: ResourceAlias[];
-  notifications?: Notification[];
+  resources?: Resource[];
 }
 /**
  * ResourceAllocation is a connection table between node, resource and task.
@@ -161,4 +178,12 @@ export interface User {
 
 export interface UserWithPassword extends User {
   password: string;
+}
+
+export interface NodeResource {
+  id?: number;
+  name: string;
+  description?: string | null;
+  amount: number;
+  unit: Unit;
 }
