@@ -12,11 +12,11 @@
           :group_name="item.group_name"
           style="min-height: 200px; min-width: 400px"
         >
-          <template v-slot:actions>
+          <template v-slot:actions v-if="showRemoveButton(item)">
             <q-btn
               flat
-              color="primary"
-              @click="removeNotification(item)"
+              color="negative"
+              @click="openConfirmDialog(item)"
               label="Remove"
             />
           </template>
@@ -47,6 +47,13 @@
       </template>
     </div>
   </div>
+  <q-dialog v-model="showRemoveDialog" persistent>
+    <ConfirmDialog @confirm="removeNotification()">
+      <template v-slot:message>
+        Are you sure you want to remove this notification?
+      </template>
+    </ConfirmDialog>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -62,6 +69,7 @@ import { computed, onMounted, ref } from 'vue';
 import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import NotificationItem from './NotificationItem.vue';
+import ConfirmDialog from '../ConfirmDialog.vue';
 
 const props = defineProps<{ user?: User; group?: Group }>();
 
@@ -69,6 +77,8 @@ const notificationStore = useNotificationStore();
 const $q = useQuasar();
 const showUnassignedNotifications = ref(false);
 const entityNotifications = ref<AssignedNotificaion[]>([]);
+const selectedNotification = ref<AssignedNotificaion>();
+const showRemoveDialog = ref(false);
 
 async function getEntityNotifications() {
   let result: GroupNotifications[] = [];
@@ -128,6 +138,13 @@ const notifications = computed(() => {
     (n) => !entityNotifications.value.find((en) => en.notification.id === n.id),
   );
 });
+
+function showRemoveButton(notification: AssignedNotificaion) {
+  if (props.user && notification.group_id !== null) {
+    return false;
+  }
+  return true;
+}
 
 async function addUserNotification(notification: Notification) {
   if (!props.user || !props.user.id) {
@@ -247,7 +264,9 @@ async function removeUserNotification(
     )
     .then(() => {
       entityNotifications.value = entityNotifications.value.filter(
-        (en) => en.notification.id !== assignedNotificaion.notification.id,
+        (en) =>
+          en.notification.id !== assignedNotificaion.notification.id ||
+          en.group_id !== null,
       );
     })
     .catch((error) => {
@@ -308,7 +327,20 @@ async function removeGroupNotification(
     });
 }
 
-async function removeNotification(notification: AssignedNotificaion) {
+function openConfirmDialog(notification: AssignedNotificaion) {
+  showRemoveDialog.value = true;
+  selectedNotification.value = notification;
+}
+
+async function removeNotification() {
+  if (!selectedNotification.value) {
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to remove notification!',
+    });
+    return;
+  }
+  const notification = selectedNotification.value;
   if (props.user && props.user.id) {
     await removeUserNotification(notification);
   } else if (props.group && props.group.id) {

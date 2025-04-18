@@ -46,6 +46,10 @@
           <div class="col"></div>
         </div>
       </q-form>
+      <SelectedNotificationList
+        v-if="group"
+        :group="group"
+      ></SelectedNotificationList>
     </div>
   </div>
 </template>
@@ -56,6 +60,7 @@ import { useUserGroupStore } from 'src/stores/user-group-store';
 import { type Group } from '../db_models';
 import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
+import SelectedNotificationList from '../notification-components/SelectedNotificationList.vue';
 
 const props = defineProps<{
   group_id: number;
