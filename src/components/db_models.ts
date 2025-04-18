@@ -50,16 +50,14 @@ export interface Group {
   members?: User[];
 }
 export interface Limit {
-  id?: number;
+  id?: number | undefined;
   name: string;
-  description?: string | null;
+  description?: string | null | undefined;
   amount: number;
-  user_id?: number | null;
-  user?: User;
-  group_id?: number | null;
-  group?: Group;
-  resource_id?: number;
-  resource?: Resource;
+  user_id?: number | null | undefined;
+  group_id?: number | null | undefined;
+  resource_id: number;
+  node_ids: number[];
 }
 /**
  * Node is a computer in the cluster.

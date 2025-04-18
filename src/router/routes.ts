@@ -148,6 +148,32 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/limits',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: true },
+    children: [
+      {
+        path: '',
+        name: 'limits',
+        component: () => import('pages/LimitList.vue'),
+        meta: { adminOnly: true },
+      },
+      {
+        path: ':id',
+        name: 'limit',
+        component: () => import('pages/LimitPage.vue'),
+        meta: { adminOnly: true },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'limit-new',
+        component: () => import('pages/LimitPage.vue'),
+        meta: { adminOnly: true },
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

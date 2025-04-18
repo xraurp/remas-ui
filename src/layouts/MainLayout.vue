@@ -120,7 +120,7 @@ const leftDrawerContent = [
       },
       {
         label: 'Resource limits',
-        link: 'resource-limits',
+        link: 'limits',
         adminOnly: true,
       },
     ],
