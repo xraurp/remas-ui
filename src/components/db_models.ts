@@ -185,3 +185,17 @@ export interface NodeResource {
   amount: number;
   unit: Unit;
 }
+
+export interface GroupNotifications {
+  group_id?: number | null;
+  group_name?: string | null;
+  notifications: Notification[];
+}
+
+// object with info about group notification is assigned to
+// and notification itself
+export interface AssignedNotificaion {
+  group_id: number | null;
+  group_name: string | null;
+  notification: Notification;
+}

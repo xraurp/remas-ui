@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-gutter-md" style="max-width: 600px">
+    <div class="q-gutter-md" style="max-width: 600px; padding-bottom: 25px">
       <q-form @reset="onCancel" @submit="onSubmit">
         <div class="row q-gutter-sm" style="padding-bottom: 25px">
           <q-input
@@ -92,6 +92,12 @@
         </div>
       </div>
     </div>
+    <div>
+      <SelectedNotificationList
+        v-if="user"
+        :user="user"
+      ></SelectedNotificationList>
+    </div>
   </div>
 </template>
 
@@ -102,6 +108,7 @@ import { useQuasar } from 'quasar';
 import { useUserGroupStore } from 'src/stores/user-group-store';
 import { getMessageFromError } from '../aux_functions';
 import UserChangePassword from './UserChangePassword.vue';
+import SelectedNotificationList from '../notification-components/SelectedNotificationList.vue';
 
 const props = defineProps<{
   user_id?: number;

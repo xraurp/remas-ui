@@ -15,6 +15,10 @@
           {{ props.notification.resource.name }}
         </div>
       </div>
+      <div class="row" v-if="props.group_name">
+        <div class="col">Inherited from group:</div>
+        <div class="col">{{ props.group_name }}</div>
+      </div>
       <q-separator v-if="props.notification.description" />
       <div v-if="props.notification.description">
         <div>Description:</div>
@@ -33,5 +37,8 @@
 import { type Notification } from '../db_models';
 import { getNotificationTypeStr } from '../aux_functions';
 
-const props = defineProps<{ notification: Notification }>();
+const props = defineProps<{
+  notification: Notification;
+  group_name?: string | undefined | null;
+}>();
 </script>

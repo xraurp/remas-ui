@@ -1,6 +1,9 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { apiRequest } from 'src/components/aux_functions';
-import type { Notification } from 'src/components/db_models';
+import type {
+  GroupNotifications,
+  Notification,
+} from 'src/components/db_models';
 
 const baseNotificationPath = '/notification';
 
@@ -138,8 +141,8 @@ export const useNotificationStore = defineStore('notificationStore', {
      * Fetches notifications for a specific user including notifications
      * from group to which the user belongs and its parent groups.
      */
-    async getUserNotifications(user_id: number): Promise<Notification[]> {
-      return await apiRequest<Notification[], Notification[]>(
+    async getUserNotifications(user_id: number): Promise<GroupNotifications[]> {
+      return await apiRequest<GroupNotifications[], GroupNotifications[]>(
         `${baseNotificationPath}/user/${user_id}`,
         'Failed to get user notifications!',
         'get',
@@ -149,8 +152,10 @@ export const useNotificationStore = defineStore('notificationStore', {
      * Fetches notifications for a specific group including notifications
      * from parent groups.
      */
-    async getGroupNotifications(group_id: number): Promise<Notification[]> {
-      return await apiRequest<Notification[], Notification[]>(
+    async getGroupNotifications(
+      group_id: number,
+    ): Promise<GroupNotifications[]> {
+      return await apiRequest<GroupNotifications[], GroupNotifications[]>(
         `${baseNotificationPath}/group/${group_id}`,
         'Failed to get group notifications!',
         'get',
