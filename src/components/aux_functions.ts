@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import { api } from 'src/boot/axios';
 import type { NodeResource } from 'src/components/db_models';
-import { Unit } from 'src/components/db_models';
+import { Unit, NotificationType } from 'src/components/db_models';
 
 export function getMessageFromError(error: unknown, defaultMessage: string) {
   let errorMessage = defaultMessage;
@@ -38,6 +38,61 @@ export async function apiRequest<T, R>(
     throw new Error(getMessageFromError(error, defaultErrorMessage));
   }
   return response.data;
+}
+
+export const notificationTypeStrList = [
+  'Task start',
+  'Task end',
+  'Resource exceedance during task',
+  'Resource exceedance',
+];
+
+export function getNotificationType(
+  notificationTypeStr: string,
+): NotificationType {
+  switch (notificationTypeStr) {
+    case notificationTypeStrList[0]:
+      return NotificationType.task_start;
+    case notificationTypeStrList[1]:
+      return NotificationType.task_end;
+    case notificationTypeStrList[2]:
+      return NotificationType.grafana_resource_exceedance;
+    case notificationTypeStrList[3]:
+      return NotificationType.grafana_resource_exceedance_general;
+    default:
+      return NotificationType.other;
+  }
+}
+
+export function getNotificationTypeStr(
+  notificationType: NotificationType,
+): string {
+  let result: string | undefined = undefined;
+  switch (notificationType) {
+    case NotificationType.task_start:
+      result = notificationTypeStrList[0];
+      break;
+    case NotificationType.task_end:
+      result = notificationTypeStrList[1];
+      break;
+    case NotificationType.grafana_resource_exceedance:
+      result = notificationTypeStrList[2];
+      break;
+    case NotificationType.grafana_resource_exceedance_general:
+      result = notificationTypeStrList[3];
+      break;
+    default:
+      result = 'other';
+      break;
+  }
+  return result || 'other';
+}
+
+export function isAlertNotification(notificationType: NotificationType) {
+  return (
+    notificationType === NotificationType.grafana_resource_exceedance ||
+    notificationType === NotificationType.grafana_resource_exceedance_general
+  );
 }
 
 export function getUnitList(unit: Unit = Unit.NONE): string[] {
@@ -85,16 +140,31 @@ export function getBytesConversionInverse(
   return amount;
 }
 
+export function getConversionInverse(
+  amount: number,
+  unit_str: string,
+  unit: Unit = Unit.NONE,
+): number {
+  if (unit === Unit.NONE) {
+    return amount;
+  }
+  return getBytesConversionInverse(amount, unit_str, unit);
+}
+
+export function getConversion(
+  amount: number,
+  unit: Unit = Unit.NONE,
+): { amount: number; unit_str: string } {
+  if (unit === Unit.NONE) {
+    return { amount, unit_str: '' };
+  }
+  return getBytesConversion(amount, unit);
+}
+
 export function getAmountStr(resource: NodeResource): string | undefined {
   if (resource.amount === undefined) {
     return undefined;
   }
-  if (resource.unit === Unit.BYTES_SI || resource.unit === Unit.BYTES_IEC) {
-    const { amount, unit_str } = getBytesConversion(
-      resource.amount,
-      resource.unit,
-    );
-    return `${amount} ${unit_str}`;
-  }
-  return `${resource.amount}`;
+  const { amount, unit_str } = getConversion(resource.amount, resource.unit);
+  return `${amount} ${unit_str}`.trim();
 }

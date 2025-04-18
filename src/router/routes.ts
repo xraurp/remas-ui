@@ -122,6 +122,32 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/notifications',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: false },
+    children: [
+      {
+        path: '',
+        name: 'notifications',
+        component: () => import('pages/NotificationList.vue'),
+        meta: { adminOnly: false },
+      },
+      {
+        path: ':id',
+        name: 'notification',
+        component: () => import('pages/NotificationPage.vue'),
+        meta: { adminOnly: false },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'notification-new',
+        component: () => import('pages/NotificationPage.vue'),
+        meta: { adminOnly: false },
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

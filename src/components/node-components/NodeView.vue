@@ -104,10 +104,7 @@
 <script setup lang="ts">
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { computed, onMounted, ref } from 'vue';
-import {
-  getBytesConversionInverse,
-  getMessageFromError,
-} from '../aux_functions';
+import { getConversionInverse, getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import type { NodeResource, Resource } from '../db_models';
 import { Unit } from '../db_models';
@@ -212,7 +209,7 @@ async function confirmAddResource(newAmount: {
     $q.notify({ type: 'negative', message: 'Failed to add resource!' });
     return;
   }
-  const _amount = getBytesConversionInverse(
+  const _amount = getConversionInverse(
     newAmount.amount,
     newAmount.unit_str,
     selectedResource.value.unit,

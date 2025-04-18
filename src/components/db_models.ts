@@ -89,7 +89,7 @@ export interface Notification {
   description?: string | null;
   time_offset?: number | null;
   notification_template?: string | null;
-  type?: NotificationType;
+  type: NotificationType;
   default_amount?: number | null;
   owner_id?: number | null;
   owner?: User;
