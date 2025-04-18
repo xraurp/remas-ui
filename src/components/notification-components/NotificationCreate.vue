@@ -1,8 +1,8 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-gutter-md">
+    <div class="q-gutter-md" style="max-width: 600px">
       <q-form @reset="onCancel" @submit="onSubmit">
-        <div class="q-gutter-sm" style="padding-bottom: 5px; max-width: 600px">
+        <div class="q-gutter-sm" style="padding-bottom: 5px">
           <q-input
             outlined
             v-model="notificationName"
@@ -27,48 +27,32 @@
           style="padding-bottom: 5px"
           v-if="isGrafanaAlert"
         >
-          <div v-if="!selectedResource">
-            <div class="text-h6">Select resource</div>
-
-            <q-separator />
-            <div class="q-pa-md row items-start q-gutter-md">
-              <template v-for="resource in resourceList">
-                <ResourceItem
-                  v-if="resource.id"
-                  :key="resource.id"
-                  :resource="resource"
-                  style="min-height: 200px; min-width: 400px"
-                >
-                  <template v-slot:actions>
-                    <q-btn
-                      flat
-                      color="primary"
-                      label="Select"
-                      @click="selectResource(resource)"
-                    />
-                  </template>
-                </ResourceItem>
-              </template>
-            </div>
-          </div>
-          <div class="row q-gutter-md q-pa-md" v-else>
-            <ResourceItem
-              v-if="selectedResource.id"
-              :key="selectedResource.id"
-              :resource="selectedResource"
-              style="min-height: 200px; min-width: 400px"
-            >
-              <template v-slot:actions>
-                <q-btn
-                  flat
-                  color="primary"
-                  label="Change resource"
-                  @click="changeResource()"
-                />
-              </template>
-            </ResourceItem>
-          </div>
-          <div style="padding-bottom: 5px; max-width: 600px">
+          <q-select
+            outlined
+            v-model="selectedResource"
+            :options="resourceList"
+            label="Select resource"
+            clearable
+            option-label="name"
+            :rules="[(val) => !!val || 'Resource is required!']"
+          >
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps">
+                <q-item-section>
+                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label caption>{{
+                    scope.opt.description
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-chip v-for="alias in scope.opt.aliases" :key="alias.id">{{
+                    alias.name
+                  }}</q-chip>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+          <div style="padding-bottom: 5px">
             <div class="row q-gutter-sm">
               <q-input
                 outlined
@@ -88,7 +72,7 @@
               />
             </div>
           </div>
-          <div style="padding-bottom: 5px; max-width: 600px">
+          <div style="padding-bottom: 5px">
             <q-input
               outlined
               v-model="notificationTemplate"
@@ -97,11 +81,7 @@
             />
           </div>
         </div>
-        <div
-          class="q-gutter-sm"
-          style="padding-bottom: 5px; max-width: 600px"
-          v-else
-        >
+        <div class="q-gutter-sm" style="padding-bottom: 5px" v-else>
           <div class="row">
             <q-input
               outlined
@@ -121,7 +101,7 @@
             />
           </div>
         </div>
-        <div class="row q-gutter-sm" style="max-width: 600px">
+        <div class="row q-gutter-sm">
           <q-btn
             label="Create notification"
             type="submit"
@@ -150,7 +130,6 @@ import { useQuasar } from 'quasar';
 import { useNotificationStore } from 'src/stores/notification-store';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { type Resource, Unit } from '../db_models';
-import ResourceItem from '../resource-components/ResourceItem.vue';
 
 const router = useRouter();
 const notificationStore = useNotificationStore();
@@ -193,15 +172,6 @@ const selectedUnit = ref(unitListOptions.value[0] || '');
 // time based alert
 const timeOffset = ref(0);
 const notificationTemplate = ref('');
-
-function selectResource(resource: Resource) {
-  selectedResource.value = resource;
-  selectedUnit.value = unitListOptions.value[0] || '';
-}
-
-function changeResource() {
-  selectedResource.value = undefined;
-}
 
 function onCancel() {
   router.back();

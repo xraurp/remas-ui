@@ -1,8 +1,8 @@
 <template>
   <div class="q-pa-md">
-    <div class="q-gutter-md">
+    <div class="q-gutter-md" style="max-width: 600px">
       <q-form @reset="onCancel" @submit="onSubmit">
-        <div class="q-gutter-sm" style="padding-bottom: 5px; max-width: 600px">
+        <div class="q-gutter-sm" style="padding-bottom: 5px">
           <q-input
             outlined
             v-model="notificationName"
@@ -30,48 +30,34 @@
           style="padding-bottom: 5px"
           v-if="isGrafanaAlert"
         >
-          <div v-if="!selectedResource">
-            <div class="text-h6">Select resource</div>
-
-            <q-separator />
-            <div class="q-pa-md row items-start q-gutter-md">
-              <template v-for="resource in resourceList">
-                <ResourceItem
-                  v-if="resource.id"
-                  :key="resource.id"
-                  :resource="resource"
-                  style="min-height: 200px; min-width: 400px"
-                >
-                  <template v-slot:actions>
-                    <q-btn
-                      flat
-                      color="primary"
-                      label="Select"
-                      @click="selectResource(resource)"
-                    />
-                  </template>
-                </ResourceItem>
-              </template>
-            </div>
-          </div>
-          <div class="row q-gutter-md q-pa-md" v-else>
-            <ResourceItem
-              v-if="selectedResource.id"
-              :key="selectedResource.id"
-              :resource="selectedResource"
-              style="min-height: 200px; min-width: 400px"
-            >
-              <template v-slot:actions v-if="!readOnly">
-                <q-btn
-                  flat
-                  color="primary"
-                  label="Change resource"
-                  @click="changeResource()"
-                />
-              </template>
-            </ResourceItem>
-          </div>
-          <div style="padding-bottom: 5px; max-width: 600px">
+          <q-select
+            outlined
+            v-model="selectedResource"
+            :options="resourceList"
+            label="Select resource"
+            clearable
+            option-label="name"
+            :rules="[(val) => !!val || 'Resource is required!']"
+            :disable="readOnly"
+            @update:model-value="(value) => onResourceChanged(value)"
+          >
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps">
+                <q-item-section>
+                  <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  <q-item-label caption>{{
+                    scope.opt.description
+                  }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-chip v-for="alias in scope.opt.aliases" :key="alias.id">{{
+                    alias.name
+                  }}</q-chip>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+          <div style="padding-bottom: 5px">
             <div class="row q-gutter-sm">
               <q-input
                 outlined
@@ -92,7 +78,7 @@
               />
             </div>
           </div>
-          <div style="padding-bottom: 5px; max-width: 600px">
+          <div style="padding-bottom: 5px">
             <q-input
               outlined
               v-model="notificationTemplate"
@@ -103,11 +89,7 @@
             />
           </div>
         </div>
-        <div
-          class="q-gutter-sm"
-          style="padding-bottom: 5px; max-width: 600px"
-          v-else
-        >
+        <div class="q-gutter-sm" style="padding-bottom: 5px" v-else>
           <div class="row">
             <q-input
               outlined
@@ -130,7 +112,7 @@
             />
           </div>
         </div>
-        <div class="row q-gutter-sm" style="max-width: 600px" v-if="!readOnly">
+        <div class="row q-gutter-sm" v-if="!readOnly">
           <q-btn
             label="Update notification"
             type="submit"
@@ -165,7 +147,6 @@ import { useQuasar } from 'quasar';
 import { useNotificationStore } from 'src/stores/notification-store';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { NotificationType, type Resource, Unit } from '../db_models';
-import ResourceItem from '../resource-components/ResourceItem.vue';
 
 const props = defineProps<{
   notification_id: number;
@@ -215,7 +196,7 @@ const isGrafanaAlert = computed(() =>
 const resourceList = ref<Resource[]>(nodeResourceStore.getResources);
 const selectedResource = ref<Resource>();
 const defaultAmount = ref(0);
-const unitListOptions = computed(() =>
+const unitListOptions = ref(
   getUnitList(selectedResource.value?.unit || Unit.NONE),
 );
 const selectedUnit = ref(unitListOptions.value[0] || '');
@@ -223,6 +204,15 @@ const selectedUnit = ref(unitListOptions.value[0] || '');
 // time based alert
 const timeOffset = ref(0);
 const notificationTemplate = ref('');
+
+function onResourceChanged(value: Resource | null) {
+  if (value) {
+    unitListOptions.value = getUnitList(
+      selectedResource.value?.unit || Unit.NONE,
+    );
+    selectedUnit.value = unitListOptions.value[0] || '';
+  }
+}
 
 function resetEditValues() {
   notificationName.value = notification?.name || '';
@@ -232,6 +222,9 @@ function resetEditValues() {
   );
   selectedResource.value = resourceList.value.find(
     (r) => r.id === notification?.resource_id,
+  );
+  unitListOptions.value = getUnitList(
+    selectedResource.value?.unit || Unit.NONE,
   );
   const { amount, unit_str } = getConversion(
     notification?.default_amount || 0,
@@ -264,15 +257,6 @@ function compareEdit() {
     cmp && notificationTemplate.value === notification?.notification_template;
   cmp = cmp && selectedResource.value?.id === notification?.resource_id;
   return cmp;
-}
-
-function selectResource(resource: Resource) {
-  selectedResource.value = resource;
-  selectedUnit.value = unitListOptions.value[0] || '';
-}
-
-function changeResource() {
-  selectedResource.value = undefined;
 }
 
 function onCancel() {
