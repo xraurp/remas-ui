@@ -171,8 +171,12 @@ const availableNodes = computed(() =>
   ),
 );
 
+/**
+ * Displays periods when resources are used.
+ */
 function showResourceSchedule() {
   for (const period of taskStore.getResourceSchedule) {
+    // nodes with not enough resources
     const node_ids = period.available_resources
       .filter((ar) =>
         selectedResources.value.find(
@@ -400,14 +404,18 @@ onMounted(async () => {
       message: getMessageFromError(error, 'Failed to fetch data from server!'),
     });
   }
+  // remove previous events (calendar keeps state between page reloads)
   const events = eventServicePlugin.getAll();
   for (const event of events) {
     eventServicePlugin.remove(event.id);
   }
+  // trigger calendar page change to get current resource schedule
   calendarControlsPlugin.setView('week');
 });
 
+// get reactive version of getResourceSchedule
 const { getResourceSchedule } = toRefs(taskStore);
+// watch for update when calendar page changes
 watch(getResourceSchedule, () => {
   showResourceSchedule();
 });

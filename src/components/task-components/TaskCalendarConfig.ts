@@ -25,6 +25,11 @@ const currentTimePlugin = createCurrentTimePlugin();
 const taskStore = useTaskStore();
 const previousRange = { start: '', end: '' };
 
+/**
+ * Fetch periods when resources are used.
+ * @param range Range of dates displayed on the calendar
+ * @returns Nothing
+ */
 function getScheduledResources(range: { start: string; end: string }) {
   if (range.start === previousRange.start && range.end === previousRange.end) {
     return;
