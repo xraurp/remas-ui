@@ -1,0 +1,135 @@
+<template>
+  <q-card>
+    <q-card-section class="row items-center q-gutter-md">
+      <q-input
+        outlined
+        v-model="title"
+        label="Task name"
+        style="width: 100%"
+        :rules="[(val) => !!val || 'Task name is required!']"
+        :disable="props.calendarEvent.calendarId !== 'tasks'"
+        @blur="onUpdateTask"
+      />
+      <TaskTimedatePicker
+        :init-date="start"
+        label="Task start"
+        :disable="props.calendarEvent.calendarId !== 'tasks'"
+        @update-date="updateStart"
+      />
+      <TaskTimedatePicker
+        :init-date="end"
+        label="Task end"
+        :disable="props.calendarEvent.calendarId !== 'tasks'"
+        @update-date="updateEnd"
+      />
+      <q-input
+        outlined
+        v-model="description"
+        label="Description"
+        type="textarea"
+        style="width: 100%"
+        :disable="props.calendarEvent.calendarId !== 'tasks'"
+        @blur="onUpdateTask"
+      />
+    </q-card-section>
+
+    <q-card-actions
+      align="right"
+      v-if="props.calendarEvent.calendarId === 'tasks'"
+    >
+      <!--q-btn label="Update task info" color="primary" @click="onUpdateTask" /-->
+      <q-btn
+        flat
+        label="Remove scheduling"
+        color="negative"
+        @click="onRemove"
+      />
+      <!--q-btn flat label="Cancel" color="primary" @click="onCancel" /-->
+    </q-card-actions>
+  </q-card>
+</template>
+
+<script setup lang="ts">
+import { type PropType, ref } from 'vue';
+import { eventModalPlugin, eventServicePlugin } from './TaskCalendarConfig';
+import TaskTimedatePicker from './TaskTimedatePicker.vue';
+import { date, useQuasar } from 'quasar';
+import { dateFormat } from '../calendarDateFormat';
+
+const props = defineProps({
+  calendarEvent: {
+    type: Object as PropType<{
+      id: number | string;
+      title: string;
+      description: string;
+      start: string;
+      end: string;
+      calendarId: string;
+    }>,
+    required: true,
+  },
+});
+
+const $q = useQuasar();
+
+const title = ref(props.calendarEvent.title);
+const description = ref(props.calendarEvent.description);
+const start = ref(props.calendarEvent.start);
+const end = ref(props.calendarEvent.end);
+
+function onUpdateTask() {
+  const updatedEvent = {
+    id: props.calendarEvent.id,
+    title: title.value,
+    description: description.value,
+    start: start.value,
+    end: end.value,
+    calendarId: 'tasks',
+  };
+  eventServicePlugin.update(updatedEvent);
+}
+
+/*function onCancel() {
+  title.value = props.calendarEvent.title;
+  description.value = props.calendarEvent.description;
+  start.value = props.calendarEvent.start;
+  end.value = props.calendarEvent.end;
+  eventModalPlugin.close();
+}*/
+
+function onRemove() {
+  eventServicePlugin.remove(props.calendarEvent.id);
+  eventModalPlugin.close();
+}
+
+function updateStart(newStart: string) {
+  const startDate = date.extractDate(newStart, dateFormat);
+  const endDate = date.extractDate(end.value, dateFormat);
+  const diff = date.getDateDiff(endDate, startDate, 'minutes');
+  console.log(diff);
+  if (diff <= 0) {
+    end.value = date.formatDate(
+      date.addToDate(startDate, { hour: 1 }),
+      dateFormat,
+    );
+  }
+  start.value = newStart;
+  onUpdateTask();
+}
+
+function updateEnd(newEnd: string) {
+  const startDate = date.extractDate(start.value, dateFormat);
+  const endDate = date.extractDate(newEnd, dateFormat);
+  const diff = date.getDateDiff(endDate, startDate, 'minutes');
+  console.log(diff);
+  if (diff <= 0) {
+    $q.notify({
+      type: 'negative',
+      message: 'End date must be after start date!',
+    });
+    return;
+  }
+  end.value = newEnd;
+  onUpdateTask();
+}
+</script>

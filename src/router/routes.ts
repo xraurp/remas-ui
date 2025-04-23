@@ -174,6 +174,32 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/tasks',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: false },
+    children: [
+      {
+        path: '',
+        name: 'tasks',
+        component: () => import('pages/TaskList.vue'),
+        meta: { adminOnly: false },
+      },
+      {
+        path: ':id',
+        name: 'task',
+        component: () => import('pages/TaskScheduler.vue'),
+        meta: { adminOnly: false },
+        props: true,
+      },
+      {
+        path: 'new',
+        name: 'task-new',
+        component: () => import('pages/TaskScheduler.vue'),
+        meta: { adminOnly: false },
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

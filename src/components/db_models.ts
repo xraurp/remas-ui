@@ -199,3 +199,20 @@ export interface AssignedNotificaion {
   group_name: string | null;
   notification: Notification;
 }
+
+export interface NodeSchduleRequest {
+  start_time: string;
+  end_time: string;
+}
+
+export interface ResourceAvailability {
+  node_id: number;
+  resource_id: number;
+  amount: number;
+}
+
+export interface UsagePeriod {
+  start_time: string;
+  end_time: string;
+  available_resources: ResourceAvailability[];
+}
