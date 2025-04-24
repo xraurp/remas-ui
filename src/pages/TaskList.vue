@@ -4,24 +4,39 @@
     <q-separator class="q-mb-md" />
     <q-btn color="green" label="Add task" @click="addTask" />
     <div class="q-pa-md row items-start q-gutter-md">
-      <template v-for="item in tasks">
-        <task-item
-          v-if="item?.id"
-          :key="item.id"
-          :task="item"
-          :show_owner="false"
-          style="min-height: 200px; min-width: 400px"
-        >
-          <template v-slot:actions>
-            <q-btn flat color="primary" @click="editTask(item)">
-              Reschedule task
-            </q-btn>
-            <q-btn flat color="negative" @click="deleteTask(item)">
-              Cancel task
-            </q-btn>
-          </template>
-        </task-item>
-      </template>
+      <task-item
+        v-for="item in tasks"
+        :key="item.id!"
+        :task="item"
+        :show_owner="false"
+        style="min-height: 200px; min-width: 400px"
+      >
+        <template v-slot:actions>
+          <q-btn flat color="primary" @click="editTask(item)">
+            Reschedule task
+          </q-btn>
+          <q-btn flat color="negative" @click="deleteTask(item)">
+            Cancel task
+          </q-btn>
+        </template>
+      </task-item>
+    </div>
+    <div style="padding-bottom: 25px">
+      <q-btn color="primary" label="Load more" @click="loadMore" />
+    </div>
+    <div class="text-h5">Finished tasks</div>
+    <q-separator class="q-mb-md" />
+    <div class="q-pa-md row items-start q-gutter-md">
+      <task-item
+        v-for="item in finishedTasks"
+        :key="item.id!"
+        :task="item"
+        :show_owner="false"
+        style="min-height: 200px; min-width: 400px"
+      />
+    </div>
+    <div>
+      <q-btn color="primary" label="Load more" @click="loadFinished" />
     </div>
   </q-page>
 </template>
@@ -34,18 +49,21 @@ import { useTaskStore } from 'src/stores/task-store';
 import { getMessageFromError } from 'src/components/aux_functions';
 import { computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import { useAuthStore } from 'src/stores/auth-store';
 
 const router = useRouter();
 const taskStore = useTaskStore();
+const authStore = useAuthStore();
 const $q = useQuasar();
 
-const tasks = computed(() => taskStore.tasks);
+const tasks = computed(() => taskStore.getTasks);
+const finishedTasks = computed(() => taskStore.getFinishedTasks);
+let pageNumber = 0;
+let finishedPageNumber = 0;
 
-onMounted(async () => {
+async function loadMore() {
   try {
-    if (!taskStore.getTasks.length) {
-      await taskStore.fetchTasks();
-    }
+    await taskStore.fetchTasks(pageNumber, authStore.getUserId);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -54,8 +72,26 @@ onMounted(async () => {
       type: 'negative',
       message: getMessageFromError(error, 'Failed to fetch tasks!'),
     });
+    return;
   }
-});
+  pageNumber++;
+}
+
+async function loadFinished() {
+  try {
+    await taskStore.fetchFinishedTasks(finishedPageNumber, authStore.getUserId);
+  } catch (error) {
+    if (process.env.debug) {
+      console.log(error);
+    }
+    $q.notify({
+      type: 'negative',
+      message: getMessageFromError(error, 'Failed to fetch tasks!'),
+    });
+    return;
+  }
+  finishedPageNumber++;
+}
 
 async function addTask() {
   await router.push({ name: 'task', params: { id: 'new' } });
@@ -80,4 +116,8 @@ async function deleteTask(task: Task) {
     });
   }
 }
+
+onMounted(async () => {
+  await loadMore();
+});
 </script>

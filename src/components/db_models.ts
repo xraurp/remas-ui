@@ -203,6 +203,7 @@ export interface AssignedNotificaion {
 export interface NodeSchduleRequest {
   start_time: string;
   end_time: string;
+  exclude_task_id: number;
 }
 
 export interface ResourceAvailability {

@@ -12,19 +12,76 @@ const taskBasePath = '/task';
 export const useTaskStore = defineStore('taskStore', {
   state: () => ({
     tasks: <TaskResponse[]>[],
+    finishedTasks: <TaskResponse[]>[],
     resourceSchedule: <UsagePeriod[]>[],
+    pageSize: 40,
+    // data related to task scheduler calendar integration
+    selectedTask: 0,
+    previousStart: '',
+    previousEnd: '',
+    previousTask: 0,
   }),
   getters: {
     getTasks: (state) => state.tasks,
+    getFinishedTasks: (state) => state.finishedTasks,
     getResourceSchedule: (state) => state.resourceSchedule,
+    getPageSize: (state) => state.pageSize,
+    getSelectedTask: (state) => state.selectedTask,
+    getPreviousStart: (state) => state.previousStart,
+    getPreviousEnd: (state) => state.previousEnd,
+    getPreviousTask: (state) => state.previousTask,
   },
   actions: {
-    async fetchTasks(): Promise<void> {
-      this.tasks = await apiRequest<Task[], TaskResponse[]>(
-        taskBasePath,
-        'Failed to fetch tasks!',
-        'get',
-      );
+    setSelectedTask(task_id: number): void {
+      this.selectedTask = task_id;
+    },
+    setPreviousCalendarRange(
+      start: string,
+      end: string,
+      task_id: number,
+    ): void {
+      this.previousStart = start;
+      this.previousEnd = end;
+      this.previousTask = task_id;
+    },
+    async fetchTasks(page_number: number, user_id?: number): Promise<void> {
+      const path = user_id ? `/user/${user_id}/active` : '/active';
+      const data = await apiRequest<
+        { page_number: number; page_size: number },
+        TaskResponse[]
+      >(`${taskBasePath}${path}`, 'Failed to fetch tasks!', 'post', {
+        page_number: page_number,
+        page_size: this.pageSize,
+      });
+      for (const task of data) {
+        const t = this.tasks.find((t) => t.id === task.id);
+        if (!t) {
+          this.tasks.push(task);
+        } else {
+          this.tasks[this.tasks.indexOf(t)] = task;
+        }
+      }
+    },
+    async fetchFinishedTasks(
+      page_number: number,
+      user_id?: number,
+    ): Promise<void> {
+      const path = user_id ? `/user/${user_id}/finished` : '/finished';
+      const data = await apiRequest<
+        { page_number: number; page_size: number },
+        TaskResponse[]
+      >(`${taskBasePath}${path}`, 'Failed to fetch tasks!', 'post', {
+        page_number,
+        page_size: this.pageSize,
+      });
+      for (const task of data) {
+        const t = this.finishedTasks.find((t) => t.id === task.id);
+        if (!t) {
+          this.finishedTasks.push(task);
+        } else {
+          this.finishedTasks[this.finishedTasks.indexOf(t)] = task;
+        }
+      }
     },
     async createOrUpdateTask(task: Task): Promise<TaskResponse> {
       const data = await apiRequest<Task, TaskResponse>(
@@ -70,6 +127,7 @@ export const useTaskStore = defineStore('taskStore', {
     async fetchResourceSchedule(
       start_time: string,
       end_time: string,
+      exclude_task_id: number,
     ): Promise<void> {
       this.resourceSchedule = await apiRequest<
         NodeSchduleRequest,
@@ -81,6 +139,7 @@ export const useTaskStore = defineStore('taskStore', {
         {
           start_time,
           end_time,
+          exclude_task_id,
         },
       );
     },

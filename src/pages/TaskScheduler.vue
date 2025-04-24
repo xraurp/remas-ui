@@ -365,6 +365,10 @@ async function setupTask() {
     end: formatDatetime(task.end_time),
     calendarId: 'tasks',
   });
+  // set calendar date to show the task
+  calendarControlsPlugin.setDate(
+    formatDatetime(task.start_time).split(' ')[0]!,
+  );
   // select resources and nodes
   for (const allocation of task.resources!) {
     if (
@@ -523,15 +527,17 @@ async function onScheduleTask() {
 }
 
 onMounted(async () => {
+  if (numericId.value) {
+    taskStore.selectedTask = numericId.value;
+  } else {
+    taskStore.selectedTask = 0;
+  }
   try {
     if (!nodeResourceStore.getResources.length) {
       await nodeResourceStore.fetchResources();
     }
     if (!nodeResourceStore.getNodes.length) {
       await nodeResourceStore.fetchNodes();
-    }
-    if (!taskStore.getTasks.length) {
-      await taskStore.fetchTasks();
     }
   } catch (error) {
     if (process.env.debug) {
@@ -547,8 +553,30 @@ onMounted(async () => {
   for (const event of events) {
     eventServicePlugin.remove(event.id);
   }
-  // trigger calendar page change to get current resource schedule
+  // get resource schedule
+  const range = calendarControlsPlugin.getRange();
+  if (range) {
+    taskStore
+      .fetchResourceSchedule(range.start, range.end, taskStore.getSelectedTask)
+      .then(() => {
+        if (process.env.debug) {
+          console.log('Resource schedule fetched!');
+        }
+        taskStore.setPreviousCalendarRange(
+          range.start,
+          range.end,
+          taskStore.getSelectedTask,
+        );
+      })
+      .catch((error) => {
+        if (process.env.debug) {
+          console.log(error);
+        }
+      });
+  }
+  // change calendar view to weekview and set to current date
   calendarControlsPlugin.setView('week');
+  calendarControlsPlugin.setDate(date.formatDate(new Date(), 'YYYY-MM-DD'));
   // setup existing task data
   await setupTask();
 });

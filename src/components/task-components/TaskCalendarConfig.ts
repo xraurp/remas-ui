@@ -23,7 +23,6 @@ export const calendarControlsPlugin = createCalendarControlsPlugin();
 const currentTimePlugin = createCurrentTimePlugin();
 
 const taskStore = useTaskStore();
-const previousRange = { start: '', end: '' };
 
 /**
  * Fetch periods when resources are used.
@@ -31,17 +30,24 @@ const previousRange = { start: '', end: '' };
  * @returns Nothing
  */
 function getScheduledResources(range: { start: string; end: string }) {
-  if (range.start === previousRange.start && range.end === previousRange.end) {
+  if (
+    range.start === taskStore.getPreviousStart &&
+    range.end === taskStore.getPreviousEnd &&
+    taskStore.getSelectedTask === taskStore.getPreviousTask
+  ) {
     return;
   }
   taskStore
-    .fetchResourceSchedule(range.start, range.end)
+    .fetchResourceSchedule(range.start, range.end, taskStore.getSelectedTask)
     .then(() => {
       if (process.env.debug) {
         console.log('Resource schedule fetched!');
       }
-      previousRange.start = range.start;
-      previousRange.end = range.end;
+      taskStore.setPreviousCalendarRange(
+        range.start,
+        range.end,
+        taskStore.getSelectedTask,
+      );
     })
     .catch((error) => {
       if (process.env.debug) {

@@ -39,15 +39,19 @@
       <div v-if="props.task.tags?.length">
         <div class="text-subtitle">Tags:</div>
         <div>
-          <template v-for="tag in props.task.tags">
-            <q-chip
-              v-if="tag.id"
-              :key="tag.id"
-              :label="tag.name"
-              color="primary"
-            />
-          </template>
+          <q-chip
+            v-for="tag in props.task.tags"
+            :key="tag.id!"
+            :label="tag.name"
+            color="primary"
+          />
         </div>
+      </div>
+    </q-card-section>
+    <q-card-section v-if="nodes.length">
+      <div class="text-subtitle">Nodes:</div>
+      <div>
+        <node-item v-for="node in nodes" :key="node.id!" :node="node" />
       </div>
     </q-card-section>
     <q-card-actions align="around">
@@ -57,11 +61,50 @@
 </template>
 
 <script setup lang="ts">
-import type { Task } from '../db_models';
+import type { TaskResponse, Node } from '../db_models';
 import { formatDatetime } from '../calendarDateFormat';
+import { computed } from 'vue';
+import NodeItem from '../node-components/NodeItem.vue';
 
 const props = defineProps<{
-  task: Task;
+  task: TaskResponse;
   show_owner: boolean;
 }>();
+
+/**
+ * Creates list of nodes and resources allocated to the task on each node.
+ * @param task The task to get the node allocation for.
+ * @returns A list of nodes and resources allocated to the task.
+ */
+function getNodeAllocation(task: TaskResponse) {
+  const nodes: Node[] = [];
+  if (!task.resources) {
+    return nodes;
+  }
+  for (const allocation of task.resources) {
+    let node = nodes.find((node) => node.id === allocation.node.id);
+    if (!node) {
+      node = allocation.node;
+    }
+    if (
+      !node.resources?.find(
+        (resource) => resource.id === allocation.resource.id,
+      )
+    ) {
+      if (!node.resources) {
+        node.resources = [];
+      }
+      node.resources.push({
+        id: allocation.resource.id!,
+        name: allocation.resource.name,
+        description: allocation.resource.description ?? null,
+        amount: allocation.amount,
+        unit: allocation.resource.unit,
+      });
+    }
+  }
+  return nodes;
+}
+
+const nodes = computed(() => getNodeAllocation(props.task));
 </script>
