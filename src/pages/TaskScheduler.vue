@@ -82,6 +82,13 @@
               @click="onScheduleTask"
               style="width: 100%"
             />
+            <q-btn
+              flat
+              color="primary"
+              @click="onCancel"
+              style="width: 100%"
+              label="Cancel"
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -127,10 +134,14 @@ import type {
   NodeResource,
   Node,
   Task,
+  ResourceAllocation,
+  TaskResponse,
+  ResourceAllocationResponse,
 } from 'src/components/db_models';
 import { Unit } from 'src/components/db_models';
 import TaskNodeItem from 'src/components/task-components/TaskNodeItem.vue';
-import { dateFormat } from 'src/components/calendarDateFormat';
+import { formatDatetime } from 'src/components/calendarDateFormat';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   id: {
@@ -151,6 +162,7 @@ const numericId = computed(() => getNumericId(props.id));
 const nodeResourceStore = useNodeResourceStore();
 const taskStore = useTaskStore();
 const $q = useQuasar();
+const router = useRouter();
 
 const showDialog = ref(false);
 const selectedResource = ref<Resource>();
@@ -171,6 +183,8 @@ const availableNodes = computed(() =>
   ),
 );
 
+let task: TaskResponse;
+
 /**
  * Displays periods when resources are used.
  */
@@ -184,8 +198,8 @@ function showResourceSchedule() {
         ),
       )
       .map((ar) => ar.node_id);
-    const start_time = date.formatDate(new Date(period.start_time), dateFormat);
-    const end_time = date.formatDate(new Date(period.end_time), dateFormat);
+    const start_time = formatDatetime(period.start_time);
+    const end_time = formatDatetime(period.end_time);
     const event_id = date.formatDate(
       new Date(period.start_time),
       'YYYYMMDDHHMM',
@@ -309,9 +323,124 @@ function onDeselectNode(node: Node) {
   selectedNodes.value = selectedNodes.value.filter((n) => n !== node);
 }
 
+async function onCancel() {
+  if (numericId.value) {
+    await router.push({ name: 'tasks', params: { id: numericId.value } });
+  } else {
+    router.back();
+  }
+}
+
+async function setupTask() {
+  // If new task is being created, do nothing
+  if (!numericId.value) {
+    return;
+  }
+
+  try {
+    task = await taskStore.getTaskData(numericId.value);
+  } catch (e) {
+    if (process.env.debug) {
+      console.log(e);
+    }
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to load task data!',
+    });
+    return;
+  }
+
+  // Remove previous task event if exists
+  const eventData = eventServicePlugin.get(0);
+  if (eventData) {
+    eventServicePlugin.remove(eventData.id);
+  }
+
+  // Setup task event in calendar with task data
+  eventServicePlugin.add({
+    id: 0,
+    title: task.name,
+    description: task.description ?? '',
+    start: formatDatetime(task.start_time),
+    end: formatDatetime(task.end_time),
+    calendarId: 'tasks',
+  });
+  // select resources and nodes
+  for (const allocation of task.resources!) {
+    if (
+      !selectedResources.value.find(
+        (r) => r.value.id === allocation.resource.id,
+      )
+    ) {
+      selectedResource.value = nodeResourceStore.getResources.find(
+        (r) => r.id === allocation.resource.id,
+      );
+      if (selectedResource.value) {
+        confirmAddResource(
+          getConversion(allocation.amount, selectedResource.value.unit),
+        );
+      }
+    }
+    if (
+      !selectedNodes.value.find((n) => n.id === allocation.node.id) &&
+      nodeResourceStore.getNodes.find((n) => n.id === allocation.node.id)
+    ) {
+      onSelectNode(
+        nodeResourceStore.getNodes.find((n) => n.id === allocation.node.id)!,
+      );
+    }
+  }
+}
+
+function compareResourceAllocations(
+  resourceAllocations: ResourceAllocation[],
+  existingResources: ResourceAllocationResponse[],
+) {
+  if (resourceAllocations.length !== existingResources.length) {
+    return false;
+  }
+  for (const allocation of resourceAllocations) {
+    if (
+      !existingResources.find(
+        (r) =>
+          r.resource.id === allocation.resource_id &&
+          r.node.id === allocation.node_id &&
+          r.amount === allocation.amount,
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function compareTask(newTaskRequest: Task) {
+  if (!numericId.value) {
+    return false;
+  }
+  let cmp = task.name === newTaskRequest.name;
+  cmp = cmp && task.description === newTaskRequest.description;
+  cmp = cmp && formatDatetime(task.start_time) === newTaskRequest.start_time;
+  cmp = cmp && formatDatetime(task.end_time) === newTaskRequest.end_time;
+  cmp =
+    cmp &&
+    compareResourceAllocations(
+      newTaskRequest.resource_allocations!,
+      task.resources!,
+    );
+  return cmp;
+}
+
 async function onScheduleTask() {
   const eventData = eventServicePlugin.get(0);
-  if (!eventData || !eventData.title) {
+  if (!eventData) {
+    $q.notify({
+      type: 'negative',
+      message: 'Task must be scheduled first!',
+    });
+    return;
+  }
+  if (!eventData.title) {
     $q.notify({
       type: 'negative',
       message: 'Task name must be set!',
@@ -350,14 +479,14 @@ async function onScheduleTask() {
         return;
       }
       allocations.push({
-        node_id: node.id,
-        resource_id: resource.value.id,
+        node_id: node.id!,
+        resource_id: resource.value.id!,
         amount: resource.value.amount,
       });
     }
   }
 
-  const scheduledTask = <Task>{
+  const newTask = <Task>{
     id: numericId.value ?? null,
     name: eventData?.title ?? '',
     description: eventData?.description ?? '',
@@ -367,8 +496,17 @@ async function onScheduleTask() {
     tag_ids: [],
   };
 
+  if (compareTask(newTask)) {
+    $q.notify({
+      type: 'info',
+      color: 'primary',
+      message: 'No changes detected!',
+    });
+    return;
+  }
+
   await taskStore
-    .createOrUpdateTask(scheduledTask)
+    .createOrUpdateTask(newTask)
     .then(() => {
       $q.notify({
         type: 'positive',
@@ -411,6 +549,8 @@ onMounted(async () => {
   }
   // trigger calendar page change to get current resource schedule
   calendarControlsPlugin.setView('week');
+  // setup existing task data
+  await setupTask();
 });
 
 // get reactive version of getResourceSchedule

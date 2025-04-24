@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { Unit } from '../db_models';
 import { ref } from 'vue';
-import { getBytesConversion, getUnitList } from '../aux_functions';
+import { getConversion, getUnitList } from '../aux_functions';
 
 const props = defineProps<{
   startingAmount: number | undefined;
@@ -63,7 +63,7 @@ let startingValue = {
   unit_str: unitListOptions.value[0] || '',
 };
 if (props.startingAmount !== undefined && props.unitType !== Unit.NONE) {
-  startingValue = getBytesConversion(props.startingAmount, props.unitType);
+  startingValue = getConversion(props.startingAmount, props.unitType);
 }
 
 // selected amount

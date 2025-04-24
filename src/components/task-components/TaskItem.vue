@@ -57,16 +57,11 @@
 </template>
 
 <script setup lang="ts">
-import { date } from 'quasar';
 import type { Task } from '../db_models';
-import { dateFormat } from '../calendarDateFormat';
+import { formatDatetime } from '../calendarDateFormat';
 
 const props = defineProps<{
   task: Task;
   show_owner: boolean;
 }>();
-
-function formatDatetime(datetime: string) {
-  return date.formatDate(new Date(datetime), dateFormat);
-}
 </script>

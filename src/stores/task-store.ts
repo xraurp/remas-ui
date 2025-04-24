@@ -3,6 +3,7 @@ import { apiRequest } from 'src/components/aux_functions';
 import type {
   NodeSchduleRequest,
   Task,
+  TaskResponse,
   UsagePeriod,
 } from 'src/components/db_models';
 
@@ -10,7 +11,7 @@ const taskBasePath = '/task';
 
 export const useTaskStore = defineStore('taskStore', {
   state: () => ({
-    tasks: <Task[]>[],
+    tasks: <TaskResponse[]>[],
     resourceSchedule: <UsagePeriod[]>[],
   }),
   getters: {
@@ -19,14 +20,14 @@ export const useTaskStore = defineStore('taskStore', {
   },
   actions: {
     async fetchTasks(): Promise<void> {
-      this.tasks = await apiRequest<Task[], Task[]>(
+      this.tasks = await apiRequest<Task[], TaskResponse[]>(
         taskBasePath,
         'Failed to fetch tasks!',
         'get',
       );
     },
-    async createOrUpdateTask(task: Task): Promise<Task> {
-      const data = await apiRequest<Task, Task>(
+    async createOrUpdateTask(task: Task): Promise<TaskResponse> {
+      const data = await apiRequest<Task, TaskResponse>(
         taskBasePath,
         'Failed to create task!',
         'post',
@@ -52,8 +53,8 @@ export const useTaskStore = defineStore('taskStore', {
       );
       this.tasks = this.tasks.filter((t) => t.id !== task_id);
     },
-    async getTaskData(task_id: number): Promise<Task> {
-      const data = await apiRequest<Task, Task>(
+    async getTaskData(task_id: number): Promise<TaskResponse> {
+      const data = await apiRequest<Task, TaskResponse>(
         `${taskBasePath}/${task_id}`,
         'Failed to get task data!',
         'get',

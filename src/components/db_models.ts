@@ -216,3 +216,21 @@ export interface UsagePeriod {
   end_time: string;
   available_resources: ResourceAvailability[];
 }
+
+export interface TaskResponse {
+  id: number;
+  name: string;
+  description?: string | null;
+  start_time: string;
+  end_time: string;
+  status: TaskStatus;
+  owner?: User;
+  resources?: ResourceAllocationResponse[];
+  tags?: TaskTag[];
+}
+
+export interface ResourceAllocationResponse {
+  node: Node;
+  resource: Resource;
+  amount: number;
+}
