@@ -42,7 +42,7 @@
               style="height: 60vh"
               class="task-scheduler-selected-nodes"
             >
-              <div class="q-pa-md row items-start q-gutter-md">
+              <div>
                 <template v-for="node in selectedNodes" :key="node.id">
                   <task-node-item :node="node" :limits="[]">
                     <template #actions>

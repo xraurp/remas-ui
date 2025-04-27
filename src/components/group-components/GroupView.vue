@@ -46,11 +46,11 @@
           <div class="col"></div>
         </div>
       </q-form>
-      <SelectedNotificationList
-        v-if="group"
-        :group="group"
-      ></SelectedNotificationList>
     </div>
+    <SelectedNotificationList
+      v-if="group"
+      :group="group"
+    ></SelectedNotificationList>
   </div>
 </template>
 
