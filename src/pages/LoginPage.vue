@@ -78,7 +78,7 @@ function authenticate() {
         'Content-Type': 'multipart/form-data',
       },
     })
-    .then((response) => {
+    .then(async (response) => {
       if (process.env.debug) {
         console.log(response);
       }
@@ -86,6 +86,10 @@ function authenticate() {
         response.data.access_token,
         response.data.refresh_token,
       );
+      await authStore.fetchUser().catch((err) => {
+        console.log(err);
+        error_msg.value = err.message;
+      });
       router.push({ path: '/' }).catch((err) => {
         console.log(err);
         error_msg.value = err.message;

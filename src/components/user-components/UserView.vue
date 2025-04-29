@@ -96,10 +96,15 @@
       <SelectedNotificationList
         v-if="user"
         :user="user"
+        :is_profile="isProfile"
       ></SelectedNotificationList>
     </div>
     <div>
-      <AssignedLimitList v-if="user" :user="user"></AssignedLimitList>
+      <AssignedLimitList
+        v-if="user"
+        :user="user"
+        :is_profile="isProfile"
+      ></AssignedLimitList>
     </div>
   </div>
 </template>
@@ -113,6 +118,7 @@ import { getMessageFromError } from '../aux_functions';
 import UserChangePassword from './UserChangePassword.vue';
 import SelectedNotificationList from '../notification-components/SelectedNotificationList.vue';
 import AssignedLimitList from '../limit-components/AssignedLimitList.vue';
+import { useAuthStore } from 'src/stores/auth-store';
 
 const props = defineProps<{
   user_id?: number;
@@ -120,15 +126,18 @@ const props = defineProps<{
 }>();
 
 const userGroupStore = useUserGroupStore();
+const authStore = useAuthStore();
 const $q = useQuasar();
 
 onMounted(async () => {
   try {
-    if (!userGroupStore.getUsers.length) {
-      await userGroupStore.fetchUsers();
-    }
-    if (!userGroupStore.getGroups.length) {
-      await userGroupStore.fetchGroups();
+    if (!props.is_profile) {
+      if (!userGroupStore.getUsers.length) {
+        await userGroupStore.fetchUsers();
+      }
+      if (!userGroupStore.getGroups.length) {
+        await userGroupStore.fetchGroups();
+      }
     }
   } catch (error) {
     if (process.env.debug) {
@@ -148,10 +157,12 @@ onMounted(async () => {
 const groups: Group[] = userGroupStore.getGroups;
 
 let user: User | undefined = undefined;
-if (props.user_id) {
+const isProfile = props.is_profile || false;
+if (isProfile) {
+  user = authStore.user;
+} else if (props.user_id) {
   user = userGroupStore.getUserById(props.user_id);
 }
-const isProfile = props.is_profile || false;
 
 /**
  * Returns the name of the group that the user belongs to,
@@ -159,6 +170,9 @@ const isProfile = props.is_profile || false;
  * @returns The name of the group that the user belongs to.
  */
 function getDefaultSelectedGroup() {
+  if (isProfile) {
+    return user?.group?.name || 'Users';
+  }
   return groups.find((group) => group.id === user?.group?.id)?.name || 'Users';
 }
 

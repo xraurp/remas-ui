@@ -19,6 +19,17 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/TaskList.vue') }],
   },
   {
+    path: '/profile',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'profile',
+        component: () => import('pages/ProfilePage.vue'),
+      },
+    ],
+  },
+  {
     path: '/users',
     component: () => import('layouts/MainLayout.vue'),
     meta: { adminOnly: true },

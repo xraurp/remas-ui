@@ -1,7 +1,14 @@
 import { AxiosError } from 'axios';
 import { api } from 'src/boot/axios';
-import type { NodeResource } from 'src/components/db_models';
+import type { NodeResource, User } from 'src/components/db_models';
 import { Unit, NotificationType } from 'src/components/db_models';
+
+export function getFirstLetter(user: User): string {
+  if (user.name && user.surname) {
+    return user.name.charAt(0);
+  }
+  return user.username.charAt(0);
+}
 
 export function getMessageFromError(error: unknown, defaultMessage: string) {
   let errorMessage = defaultMessage;

@@ -71,7 +71,11 @@ import { useQuasar } from 'quasar';
 import NotificationItem from './NotificationItem.vue';
 import ConfirmDialog from '../ConfirmDialog.vue';
 
-const props = defineProps<{ user?: User; group?: Group }>();
+const props = defineProps<{
+  user?: User;
+  group?: Group;
+  is_profile?: boolean;
+}>();
 
 const notificationStore = useNotificationStore();
 const $q = useQuasar();
@@ -118,7 +122,9 @@ async function getEntityNotifications() {
 onMounted(async () => {
   try {
     entityNotifications.value = await getEntityNotifications();
-    if (!notificationStore.getNotifications.length) {
+    if (props.is_profile) {
+      await notificationStore.fetchUserOwnedNotifications(props.user!.id!);
+    } else if (!notificationStore.getNotifications.length) {
       await notificationStore.fetchNotifications();
     }
   } catch (error) {
@@ -134,6 +140,14 @@ onMounted(async () => {
 });
 
 const notifications = computed(() => {
+  if (props.is_profile) {
+    return notificationStore.getNotifications
+      .filter(
+        (n) =>
+          !entityNotifications.value.find((en) => en.notification.id === n.id),
+      )
+      .filter((n) => n.owner_id === props.user?.id);
+  }
   return notificationStore.getNotifications.filter(
     (n) => !entityNotifications.value.find((en) => en.notification.id === n.id),
   );

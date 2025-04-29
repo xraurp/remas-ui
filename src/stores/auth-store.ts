@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       let response = null;
       try {
-        response = await api.get(`/user/${this.user.id}`);
+        response = await api.get(`/user/${this.getUserId}`);
       } catch (error) {
         if (process.env.debug) {
           console.log(error);
@@ -91,15 +91,20 @@ export const useAuthStore = defineStore('auth', {
         old_password: oldPassword,
       };
       try {
-        await api.post('/authentication/update_password', message);
+        await api.post('/authentication/change_password', message);
       } catch (error) {
         if (process.env.debug) {
           console.log(error);
         }
         throw new Error(
-          getMessageFromError(error, 'Failed to update user password!'),
+          getMessageFromError(error, 'Failed to change user password!'),
         );
       }
+    },
+    logout() {
+      this.accessToken = '';
+      this.refreshToken = '';
+      this.user = <User>{};
     },
   },
 });

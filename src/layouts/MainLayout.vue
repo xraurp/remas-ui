@@ -12,6 +12,27 @@
           REMAS
         </q-toolbar-title>
         <!-- TODO - add avatar with user settings -->
+
+        <q-btn-dropdown flat rounded dense color="primary">
+          <template v-slot:label>
+            <q-avatar color="white" text-color="primary">{{
+              firstLetter
+            }}</q-avatar>
+          </template>
+          <q-list>
+            <q-item clickable v-close-popup @click="onProfile">
+              <q-item-section>
+                <q-item-label>User profile</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-close-popup @click="onLogout">
+              <q-item-section>
+                <q-item-label>Logout</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
@@ -60,8 +81,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useAuthStore } from 'src/stores/auth-store';
+import { getFirstLetter } from 'src/components/aux_functions';
+import { useRouter } from 'vue-router';
+
 //import { pageNavigationCategory, pageNavigationItem } from 'components/models';
+const authStore = useAuthStore();
+const router = useRouter();
+
+const leftDrawerOpen = ref(false);
+const firstLetter = computed(() => getFirstLetter(authStore.user));
 
 const leftDrawerContent = [
   {
@@ -126,9 +156,16 @@ const leftDrawerContent = [
     ],
   },
 ];
-
-const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+async function onLogout() {
+  authStore.logout();
+  await router.push({ name: 'login' });
+}
+
+async function onProfile() {
+  await router.push({ name: 'profile' });
 }
 </script>

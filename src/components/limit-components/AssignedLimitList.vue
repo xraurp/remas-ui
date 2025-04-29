@@ -2,7 +2,12 @@
   <div class="q-gutter-md">
     <div class="text-h6">Resource usage limits</div>
     <q-separator />
-    <q-btn label="Add limit" color="green" @click="onAddLimit" />
+    <q-btn
+      label="Add limit"
+      color="green"
+      @click="onAddLimit"
+      v-if="!is_profile"
+    />
     <div class="q-pa-md row items-start q-gutter-md">
       <limit-item
         v-for="item in entityLimits"
@@ -48,7 +53,11 @@ import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { useRouter } from 'vue-router';
 import { useUserGroupStore } from 'src/stores/user-group-store';
 
-const props = defineProps<{ user?: User; group?: Group }>();
+const props = defineProps<{
+  user?: User;
+  group?: Group;
+  is_profile?: boolean;
+}>();
 
 const router = useRouter();
 const limitStore = useLimitStore();

@@ -43,7 +43,7 @@
 import { computed } from 'vue';
 import type { User } from '../db_models';
 import { useQuasar } from 'quasar';
-import { getMessageFromError } from '../aux_functions';
+import { getFirstLetter, getMessageFromError } from '../aux_functions';
 
 const props = defineProps<{
   user: User;
@@ -53,12 +53,7 @@ const props = defineProps<{
 
 const $q = useQuasar();
 
-const getLetter = computed(() => {
-  if (props.user.name && props.user.surname) {
-    return props.user.name.charAt(0);
-  }
-  return props.user.username.charAt(0);
-});
+const getLetter = computed(() => getFirstLetter(props.user));
 
 const showName = computed(() => {
   return props.user.name && props.user.surname;
