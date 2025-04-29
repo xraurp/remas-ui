@@ -12,11 +12,11 @@
         <div class="text-subtitle col">{{ amount_str }}</div>
       </div>
       <div class="row" v-if="props.user">
-        <div class="text-subtitle col">User:</div>
+        <div class="text-subtitle col">Assigned to user:</div>
         <div class="text-subtitle col">{{ props.user.username }}</div>
       </div>
       <div class="row" v-if="props.group">
-        <div class="text-subtitle col">Group:</div>
+        <div class="text-subtitle col">Assigned to group:</div>
         <div class="text-subtitle col">{{ props.group.name }}</div>
       </div>
       <q-separator v-if="props.limit.description" />

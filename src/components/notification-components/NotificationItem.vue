@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="row" v-if="props.group_name">
-        <div class="col">Inherited from group:</div>
+        <div class="col">Assigned to group:</div>
         <div class="col">{{ props.group_name }}</div>
       </div>
       <q-separator v-if="props.notification.description" />

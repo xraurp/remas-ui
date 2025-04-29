@@ -140,10 +140,12 @@ const notifications = computed(() => {
 });
 
 function showRemoveButton(notification: AssignedNotificaion) {
-  if (props.user && notification.group_id !== null) {
-    return false;
+  if (props.user && notification.group_id === null) {
+    return true;
+  } else if (props.group && notification.group_id === props.group.id) {
+    return true;
   }
-  return true;
+  return false;
 }
 
 async function addUserNotification(notification: Notification) {

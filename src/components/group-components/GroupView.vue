@@ -47,10 +47,12 @@
         </div>
       </q-form>
     </div>
-    <SelectedNotificationList
-      v-if="group"
-      :group="group"
-    ></SelectedNotificationList>
+    <div>
+      <SelectedNotificationList v-if="group" :group="group" />
+    </div>
+    <div>
+      <AssignedLimitList v-if="group" :group="group" />
+    </div>
   </div>
 </template>
 
@@ -61,6 +63,7 @@ import { type Group } from '../db_models';
 import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import SelectedNotificationList from '../notification-components/SelectedNotificationList.vue';
+import AssignedLimitList from '../limit-components/AssignedLimitList.vue';
 
 const props = defineProps<{
   group_id: number;

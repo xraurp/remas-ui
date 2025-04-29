@@ -98,6 +98,9 @@
         :user="user"
       ></SelectedNotificationList>
     </div>
+    <div>
+      <AssignedLimitList v-if="user" :user="user"></AssignedLimitList>
+    </div>
   </div>
 </template>
 
@@ -109,6 +112,7 @@ import { useUserGroupStore } from 'src/stores/user-group-store';
 import { getMessageFromError } from '../aux_functions';
 import UserChangePassword from './UserChangePassword.vue';
 import SelectedNotificationList from '../notification-components/SelectedNotificationList.vue';
+import AssignedLimitList from '../limit-components/AssignedLimitList.vue';
 
 const props = defineProps<{
   user_id?: number;
