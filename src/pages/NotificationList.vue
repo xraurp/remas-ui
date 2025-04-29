@@ -40,18 +40,22 @@ import { useRouter } from 'vue-router';
 import { type Notification } from 'src/components/db_models';
 import NotificationItem from 'src/components/notification-components/NotificationItem.vue';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
+import { useAuthStore } from 'src/stores/auth-store';
 
 const $q = useQuasar();
-const notificationResourceStore = useNotificationStore();
+const notificationStore = useNotificationStore();
 const nodeResourceStore = useNodeResourceStore();
+const authStore = useAuthStore();
 const router = useRouter();
-const notifications = computed(
-  () => notificationResourceStore.getNotifications,
-);
+const notifications = computed(() => notificationStore.getNotifications);
 
 onMounted(async () => {
   try {
-    await notificationResourceStore.fetchNotifications();
+    if (authStore.isAdmin) {
+      await notificationStore.fetchNotifications();
+    } else {
+      await notificationStore.fetchUserOwnedNotifications(authStore.getUserId);
+    }
     if (!nodeResourceStore.getResources.length) {
       await nodeResourceStore.fetchResources();
     }
@@ -76,7 +80,7 @@ async function editNotification(notification: Notification) {
 
 async function deleteNotification(notification: Notification) {
   try {
-    await notificationResourceStore.deleteNotification(notification);
+    await notificationStore.deleteNotification(notification);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);

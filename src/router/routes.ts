@@ -16,7 +16,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     // TODO - change to task list!
-    children: [{ path: '', component: () => import('pages/UserList.vue') }],
+    children: [{ path: '', component: () => import('pages/TaskList.vue') }],
   },
   {
     path: '/users',

@@ -22,6 +22,13 @@ export const useNotificationStore = defineStore('notificationStore', {
         'get',
       );
     },
+    async fetchUserOwnedNotifications(user_id: number): Promise<void> {
+      this.notifications = await apiRequest<Notification[], Notification[]>(
+        `${baseNotificationPath}/owner/${user_id}`,
+        "Failed to fetch user's notifications!",
+        'get',
+      );
+    },
     async createNotification(
       notification: Notification,
     ): Promise<Notification> {

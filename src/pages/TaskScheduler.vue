@@ -44,7 +44,7 @@
             >
               <div>
                 <template v-for="node in selectedNodes" :key="node.id">
-                  <task-node-item :node="node" :limits="[]">
+                  <task-node-item :node="node" :limits="limits">
                     <template #actions>
                       <q-btn flat color="primary" @click="onDeselectNode(node)"
                         >Remove</q-btn
@@ -64,7 +64,7 @@
             >
               <div>
                 <template v-for="node in availableNodes" :key="node.id">
-                  <task-node-item :node="node" :limits="[]">
+                  <task-node-item :node="node" :limits="limits">
                     <template #actions>
                       <q-btn flat color="primary" @click="onSelectNode(node)"
                         >Select</q-btn
@@ -137,11 +137,14 @@ import type {
   ResourceAllocation,
   TaskResponse,
   ResourceAllocationResponse,
+  Limit,
 } from 'src/components/db_models';
 import { Unit } from 'src/components/db_models';
 import TaskNodeItem from 'src/components/task-components/TaskNodeItem.vue';
 import { formatDatetime } from 'src/components/calendarDateFormat';
 import { useRouter } from 'vue-router';
+import { useLimitStore } from 'src/stores/limit-store';
+import { useAuthStore } from 'src/stores/auth-store';
 
 const props = defineProps({
   id: {
@@ -160,6 +163,8 @@ interface SelectedResource {
 const numericId = computed(() => getNumericId(props.id));
 
 const nodeResourceStore = useNodeResourceStore();
+const limitStore = useLimitStore();
+const authStore = useAuthStore();
 const taskStore = useTaskStore();
 const $q = useQuasar();
 const router = useRouter();
@@ -169,6 +174,8 @@ const selectedResource = ref<Resource>();
 
 const selectedResources = ref<SelectedResource[]>([]);
 const selectedNodes = ref<Node[]>([]);
+
+let limits: Limit[] = [];
 
 const availableResources = computed(() =>
   nodeResourceStore.getResources.filter(
@@ -533,6 +540,7 @@ onMounted(async () => {
     taskStore.selectedTask = 0;
   }
   try {
+    limits = await limitStore.getAllUserLimits(authStore.getUserId);
     if (!nodeResourceStore.getResources.length) {
       await nodeResourceStore.fetchResources();
     }

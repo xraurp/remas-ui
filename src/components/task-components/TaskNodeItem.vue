@@ -17,8 +17,8 @@
             <q-chip
               v-if="resource.id"
               :key="resource.id"
+              :color="getChipColor(resource)"
               :label="getChipLabel(resource)"
-              color="primary"
             />
           </template>
         </div>
@@ -55,23 +55,32 @@ function getLimitForResource(resource: NodeResource): Limit | undefined {
   return limits[0];
 }
 
+function getChipColor(resource: NodeResource): string {
+  const limit = getLimitForResource(resource);
+  if (limit && limit.amount < resource.amount) {
+    return 'negative';
+  }
+  return 'primary';
+}
+
 function getChipLabel(resource: NodeResource): string {
   const limit = getLimitForResource(resource);
   const resourceAmount = getConversion(
     resource.amount,
     resource.unit || Unit.NONE,
   );
+  // trim to remove whitespace at the end if no unit is displayed
+  let label =
+    `${resource.name}: ${resourceAmount.amount} ${resourceAmount.unit_str}`.trim();
   if (limit && limit.amount < resource.amount) {
     const limitAmount = getConversion(
       limit?.amount || 0,
       resource.unit || Unit.NONE,
     );
-    return (
-      `${resource.name}: ${resourceAmount.amount} ` +
-      `${resourceAmount.unit_str}` +
-      `\nLimited to: ${limitAmount.amount} ${limitAmount.unit_str}`
-    );
+    label =
+      label +
+      `, Limited to: ${limitAmount.amount} ${limitAmount.unit_str}`.trim();
   }
-  return `${resource.name}: ${resourceAmount.amount} ${resourceAmount.unit_str}`;
+  return label.trim();
 }
 </script>

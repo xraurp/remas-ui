@@ -130,10 +130,12 @@ import { useQuasar } from 'quasar';
 import { useNotificationStore } from 'src/stores/notification-store';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { type Resource, Unit } from '../db_models';
+import { useAuthStore } from 'src/stores/auth-store';
 
 const router = useRouter();
 const notificationStore = useNotificationStore();
 const nodeResourceStore = useNodeResourceStore();
+const authStore = useAuthStore();
 const $q = useQuasar();
 
 onMounted(async () => {
@@ -142,7 +144,13 @@ onMounted(async () => {
       await nodeResourceStore.fetchResources();
     }
     if (!notificationStore.getNotifications.length) {
-      await notificationStore.fetchNotifications();
+      if (authStore.isAdmin) {
+        await notificationStore.fetchNotifications();
+      } else {
+        await notificationStore.fetchUserOwnedNotifications(
+          authStore.getUserId,
+        );
+      }
     }
   } catch (error) {
     if (process.env.debug) {
