@@ -122,7 +122,7 @@ function setPassword() {
 
 function changePassword() {
   authStore
-    .updateUserPassword(password.value, newPassword.value)
+    .updateUserPassword(newPassword.value, password.value)
     .then(() => {
       $q.notify({
         type: 'positive',

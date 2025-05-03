@@ -218,8 +218,8 @@ function showResourceSchedule() {
       }
       continue;
     }
-    const nodes = availableNodes.value.filter(
-      (n) => n.id && node_ids.includes(n.id),
+    const nodes = nodeResourceStore.getNodes.filter((n) =>
+      node_ids.includes(n.id!),
     );
     const event_body = {
       id: event_id,
