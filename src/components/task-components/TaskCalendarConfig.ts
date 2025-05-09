@@ -14,6 +14,8 @@ import { createEventsServicePlugin } from '@schedule-x/events-service';
 import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 import { createCurrentTimePlugin } from '@schedule-x/current-time';
 import { useTaskStore } from 'src/stores/task-store';
+import { dateFormat } from 'src/components/calendarDateFormat';
+import { date } from 'quasar';
 
 const dragAndDropPlugin = createDragAndDropPlugin();
 const resizePlugin = createResizePlugin(15);
@@ -101,12 +103,19 @@ export const calendar = createCalendar({
         return;
       }
 
+      // Get the event end time
+      const startDate = date.extractDate(dateTime, dateFormat);
+      const endDate = date.formatDate(
+        date.addToDate(startDate, { hour: 1 }),
+        dateFormat,
+      );
+
       // Add event
       eventServicePlugin.add({
         title: 'Task name',
         description: '',
         start: dateTime,
-        end: dateTime,
+        end: endDate,
         id: 0,
         calendarId: 'tasks',
       });
