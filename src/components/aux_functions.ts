@@ -144,7 +144,8 @@ export function getBytesConversionInverse(
     amount *= divisor;
     i--;
   }
-  return amount;
+  // round to prevent allocation of half of a byte, etc.
+  return Math.floor(amount);
 }
 
 export function getConversionInverse(
@@ -153,7 +154,8 @@ export function getConversionInverse(
   unit: Unit = Unit.NONE,
 ): number {
   if (unit === Unit.NONE) {
-    return amount;
+    // round to prevent allocation of 1.5 of CPU core, etc.
+    return Math.floor(amount);
   }
   return getBytesConversionInverse(amount, unit_str, unit);
 }
