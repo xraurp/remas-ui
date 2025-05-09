@@ -53,7 +53,7 @@
 import { type PropType, ref } from 'vue';
 import { eventModalPlugin, eventServicePlugin } from './TaskCalendarConfig';
 import TaskTimedatePicker from './TaskTimedatePicker.vue';
-import { date, useQuasar } from 'quasar';
+import { date } from 'quasar';
 import { dateFormat } from '../calendarDateFormat';
 
 const props = defineProps({
@@ -69,8 +69,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const $q = useQuasar();
 
 const title = ref(props.calendarEvent.title);
 const description = ref(props.calendarEvent.description);
@@ -123,10 +121,8 @@ function updateEnd(newEnd: string) {
   const diff = date.getDateDiff(endDate, startDate, 'minutes');
   console.log(diff);
   if (diff <= 0) {
-    $q.notify({
-      type: 'negative',
-      message: 'End date must be after start date!',
-    });
+    // Skip update if end is less then start time.
+    // Usually happens during end time update.
     return;
   }
   end.value = newEnd;
