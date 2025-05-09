@@ -210,6 +210,11 @@ export const useNodeResourceStore = defineStore('nodeResourceStore', {
         (ra) => ra.id !== resource_alias.id,
       );
     },
+    logout() {
+      this.nodes = [];
+      this.resources = [];
+      this.resource_aliases = [];
+    },
   },
 });
 

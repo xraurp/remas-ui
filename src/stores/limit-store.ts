@@ -71,6 +71,9 @@ export const useLimitStore = defineStore('limitStore', {
         'get',
       );
     },
+    logout() {
+      this.limits = [];
+    },
   },
 });
 

@@ -4,13 +4,7 @@
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title>
-          <q-avatar>
-            <!-- TODO - change icon to some created one -->
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
-          </q-avatar>
-          REMAS
-        </q-toolbar-title>
+        <q-toolbar-title> REMAS </q-toolbar-title>
         <!-- TODO - add avatar with user settings -->
 
         <q-btn-dropdown flat rounded dense color="primary">
@@ -72,11 +66,21 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useAuthStore } from 'src/stores/auth-store';
+import { useLimitStore } from 'src/stores/limit-store';
+import { useNodeResourceStore } from 'src/stores/node-resource-store';
+import { useNotificationStore } from 'src/stores/notification-store';
+import { useTaskStore } from 'src/stores/task-store';
+import { useUserGroupStore } from 'src/stores/user-group-store';
 import { getFirstLetter } from 'src/components/aux_functions';
 import { useRouter } from 'vue-router';
 
 //import { pageNavigationCategory, pageNavigationItem } from 'components/models';
 const authStore = useAuthStore();
+const limitStore = useLimitStore();
+const nodeResourceStore = useNodeResourceStore();
+const notificationStore = useNotificationStore();
+const taskStore = useTaskStore();
+const userGroupStore = useUserGroupStore();
 const router = useRouter();
 
 const leftDrawerOpen = ref(false);
@@ -150,6 +154,11 @@ function toggleLeftDrawer() {
 }
 
 async function onLogout() {
+  limitStore.logout();
+  nodeResourceStore.logout();
+  notificationStore.logout();
+  taskStore.logout();
+  userGroupStore.logout();
   authStore.logout();
   await router.push({ name: 'login' });
 }

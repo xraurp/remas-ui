@@ -168,6 +168,9 @@ export const useNotificationStore = defineStore('notificationStore', {
         'get',
       );
     },
+    logout() {
+      this.notifications = [];
+    },
   },
 });
 

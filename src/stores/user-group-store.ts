@@ -188,6 +188,10 @@ export const useUserGroupStore = defineStore('userGroupStore', {
       }
       return response.data;
     },
+    logout() {
+      this.users = [];
+      this.groups = [];
+    },
   },
 });
 

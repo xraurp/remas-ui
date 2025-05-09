@@ -143,6 +143,15 @@ export const useTaskStore = defineStore('taskStore', {
         },
       );
     },
+    logout() {
+      this.tasks = [];
+      this.finishedTasks = [];
+      this.resourceSchedule = [];
+      this.selectedTask = 0;
+      this.previousStart = '';
+      this.previousEnd = '';
+      this.previousTask = 0;
+    },
   },
 });
 
