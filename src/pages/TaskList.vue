@@ -164,6 +164,15 @@ async function deleteTask(task: Task) {
 }
 
 onMounted(async () => {
+  if (props.all_tasks) {
+    taskStore.removeFinishedTasksFromAll();
+  } else {
+    taskStore.removeFinishedTasks();
+  }
+  pageNumber.value = Math.ceil(tasks.value.length / taskStore.pageSize);
+  finishedPageNumber.value = Math.ceil(
+    finishedTasks.value.length / taskStore.pageSize,
+  );
   await loadMore();
 });
 </script>

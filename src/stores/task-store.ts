@@ -6,6 +6,8 @@ import type {
   TaskResponse,
   UsagePeriod,
 } from 'src/components/db_models';
+import { dateFormat } from 'src/components/calendarDateFormat';
+import { date } from 'quasar';
 
 const taskBasePath = '/task';
 
@@ -167,6 +169,25 @@ export const useTaskStore = defineStore('taskStore', {
           end_time,
           exclude_task_id,
         },
+      );
+    },
+    /**
+     * Removes tasks that have already finished from the task list.
+     */
+    removeFinishedTasks() {
+      const current_time = new Date();
+      this.tasks = this.tasks.filter(
+        (t) => date.extractDate(t.end_time, dateFormat) > current_time,
+      );
+    },
+    /**
+     * Removes tasks that have already finished from the tasks list
+     * on page that show all tasks.
+     */
+    removeFinishedTasksFromAll() {
+      const current_time = new Date();
+      this.allTasks = this.allTasks.filter(
+        (t) => date.extractDate(t.end_time, dateFormat) > current_time,
       );
     },
     logout() {
