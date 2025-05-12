@@ -83,13 +83,25 @@ const finishedTasks = computed(() => {
 const pageNumber = ref(0);
 const finishedPageNumber = ref(0);
 
+async function loadPage(page: number) {
+  if (props.all_tasks) {
+    await taskStore.fetchTasks(page);
+  } else {
+    await taskStore.fetchTasks(page, authStore.getUserId);
+  }
+}
+
+async function loadFinishedPage(page: number) {
+  if (props.all_tasks) {
+    await taskStore.fetchFinishedTasks(page);
+  } else {
+    await taskStore.fetchFinishedTasks(page, authStore.getUserId);
+  }
+}
+
 async function loadMore() {
   try {
-    if (props.all_tasks) {
-      await taskStore.fetchTasks(pageNumber.value);
-    } else {
-      await taskStore.fetchTasks(pageNumber.value, authStore.getUserId);
-    }
+    await loadPage(pageNumber.value);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -103,21 +115,11 @@ async function loadMore() {
   if (tasks.value.length > taskStore.pageSize * pageNumber.value) {
     pageNumber.value++;
   }
-  if (process.env.debug) {
-    console.log(pageNumber.value);
-  }
 }
 
 async function loadFinished() {
   try {
-    if (props.all_tasks) {
-      await taskStore.fetchFinishedTasks(finishedPageNumber.value);
-    } else {
-      await taskStore.fetchFinishedTasks(
-        finishedPageNumber.value,
-        authStore.getUserId,
-      );
-    }
+    await loadFinishedPage(finishedPageNumber.value);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -134,8 +136,24 @@ async function loadFinished() {
   ) {
     finishedPageNumber.value++;
   }
-  if (process.env.debug) {
-    console.log(finishedPageNumber.value);
+}
+
+async function refresh() {
+  try {
+    for (let i = 0; i < pageNumber.value; i++) {
+      await loadPage(i);
+    }
+    for (let i = 0; i < finishedPageNumber.value; i++) {
+      await loadFinishedPage(i);
+    }
+  } catch (error) {
+    if (process.env.debug) {
+      console.log(error);
+    }
+    $q.notify({
+      type: 'negative',
+      message: getMessageFromError(error, 'Failed to fetch tasks!'),
+    });
   }
 }
 
@@ -173,6 +191,12 @@ onMounted(async () => {
   finishedPageNumber.value = Math.ceil(
     finishedTasks.value.length / taskStore.pageSize,
   );
-  await loadMore();
+  if (pageNumber.value === 0 && finishedPageNumber.value === 0) {
+    await loadMore();
+  } else {
+    await refresh();
+  }
+  console.log(pageNumber.value);
+  console.log(finishedPageNumber.value);
 });
 </script>

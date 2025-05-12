@@ -18,7 +18,7 @@ export const useTaskStore = defineStore('taskStore', {
     allTasks: <TaskResponse[]>[],
     allFinishedTasks: <TaskResponse[]>[],
     resourceSchedule: <UsagePeriod[]>[],
-    pageSize: 40,
+    pageSize: 4,
     // data related to task scheduler calendar integration
     selectedTask: 0,
     previousStart: '',
@@ -177,7 +177,7 @@ export const useTaskStore = defineStore('taskStore', {
     removeFinishedTasks() {
       const current_time = new Date();
       this.tasks = this.tasks.filter(
-        (t) => date.extractDate(t.end_time, dateFormat) > current_time,
+        (t) => date.extractDate(t.end_time, dateFormat) < current_time,
       );
     },
     /**
@@ -187,7 +187,7 @@ export const useTaskStore = defineStore('taskStore', {
     removeFinishedTasksFromAll() {
       const current_time = new Date();
       this.allTasks = this.allTasks.filter(
-        (t) => date.extractDate(t.end_time, dateFormat) > current_time,
+        (t) => date.extractDate(t.end_time, dateFormat) < current_time,
       );
     },
     logout() {
