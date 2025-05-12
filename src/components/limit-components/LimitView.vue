@@ -166,35 +166,6 @@ const limitStore = useLimitStore();
 const $q = useQuasar();
 const readOnly = ref(true);
 
-onMounted(async () => {
-  try {
-    if (!limitStore.getLimits.length) {
-      await limitStore.fetchLimits();
-    }
-    if (!userGroupStore.getUsers.length) {
-      await userGroupStore.fetchUsers();
-    }
-    if (!userGroupStore.getGroups.length) {
-      await userGroupStore.fetchGroups();
-    }
-    if (!nodeResourceStore.getResources.length) {
-      await nodeResourceStore.fetchResources();
-    }
-    if (!nodeResourceStore.getNodes.length) {
-      await nodeResourceStore.fetchNodes();
-    }
-  } catch (error) {
-    if (process.env.debug) {
-      console.log(error);
-    }
-    const message = getMessageFromError(
-      error,
-      'Failed to fetch data from the server!',
-    );
-    $q.notify({ type: 'negative', message });
-  }
-});
-
 let limit = limitStore.getLimits.find((l) => l.id === props.limit_id);
 
 if (!limit) {
@@ -229,7 +200,7 @@ const targetOptions = computed(() => {
 
 const resourceOptions = computed(() => nodeResourceStore.getResources);
 const nodeOptions = computed(() => nodeResourceStore.getNodes);
-const unitOptions = ref(getUnitList(resource.value?.unit || Unit.NONE));
+const unitOptions = ref<string[]>([]);
 
 function onResourceChanged(value: Resource | null) {
   if (value) {
@@ -319,6 +290,7 @@ function onEdit() {
 }
 
 async function onSubmit() {
+  // check for changes
   if (compareEdit()) {
     $q.notify({
       type: 'info',
@@ -328,6 +300,7 @@ async function onSubmit() {
     readOnly.value = true;
     return;
   }
+  // check required fields
   if (!target.value) {
     $q.notify({
       type: 'negative',
@@ -349,12 +322,14 @@ async function onSubmit() {
     });
     return;
   }
+  // get node id list
   const nodeIds = [];
   for (const node of nodes.value) {
     if (node.id) {
       nodeIds.push(node.id);
     }
   }
+  // get target entity
   let user_id = null;
   let group_id = null;
   if (!target.value.id) {
@@ -369,6 +344,7 @@ async function onSubmit() {
   } else {
     group_id = target.value.id;
   }
+  // send update to backend
   await limitStore
     .updateLimit({
       id: limit?.id || 0,
@@ -407,4 +383,34 @@ async function onSubmit() {
       });
     });
 }
+
+onMounted(async () => {
+  try {
+    if (!limitStore.getLimits.length) {
+      await limitStore.fetchLimits();
+    }
+    if (!userGroupStore.getUsers.length) {
+      await userGroupStore.fetchUsers();
+    }
+    if (!userGroupStore.getGroups.length) {
+      await userGroupStore.fetchGroups();
+    }
+    if (!nodeResourceStore.getResources.length) {
+      await nodeResourceStore.fetchResources();
+    }
+    if (!nodeResourceStore.getNodes.length) {
+      await nodeResourceStore.fetchNodes();
+    }
+  } catch (error) {
+    if (process.env.debug) {
+      console.log(error);
+    }
+    const message = getMessageFromError(
+      error,
+      'Failed to fetch data from the server!',
+    );
+    $q.notify({ type: 'negative', message });
+  }
+  unitOptions.value = getUnitList(resource.value?.unit || Unit.NONE);
+});
 </script>
