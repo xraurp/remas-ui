@@ -443,6 +443,7 @@ function compareTask(newTaskRequest: Task) {
 }
 
 async function onScheduleTask() {
+  // Get the event in calendar
   const eventData = eventServicePlugin.get(0);
   if (!eventData) {
     $q.notify({
@@ -479,6 +480,7 @@ async function onScheduleTask() {
     });
     return;
   }
+  // get list of resource allocations -- (node, resource, amount)
   const allocations = [];
   for (const node of selectedNodes.value) {
     for (const resource of selectedResources.value) {
@@ -497,6 +499,7 @@ async function onScheduleTask() {
     }
   }
 
+  // create or update task
   const newTask = <Task>{
     id: numericId.value ?? null,
     name: eventData?.title ?? '',
@@ -516,13 +519,15 @@ async function onScheduleTask() {
     return;
   }
 
+  // send request
   await taskStore
     .createOrUpdateTask(newTask)
-    .then(() => {
+    .then(async () => {
       $q.notify({
         type: 'positive',
         message: 'Task scheduled successfully!',
       });
+      await router.push({ name: 'tasks' });
     })
     .catch((error) => {
       if (process.env.debug) {
