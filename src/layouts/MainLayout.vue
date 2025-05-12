@@ -58,7 +58,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view :key="router.currentRoute.value.fullPath" />
     </q-page-container>
   </q-layout>
 </template>
@@ -99,7 +99,7 @@ const leftDrawerContent = [
   },
   {
     label: 'Status',
-    adminOnly: true,
+    adminOnly: false,
     pages: [
       {
         label: 'Cluster status',
