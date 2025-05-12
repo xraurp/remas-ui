@@ -20,13 +20,20 @@
               flat
               color="negative"
               label="Delete"
-              @click="deleteLimit(item)"
+              @click="openConfirmDialog(item)"
             />
           </template>
         </limit-item>
       </template>
     </div>
   </q-page>
+  <q-dialog v-model="showRemoveDialog" persistent>
+    <ConfirmRemoveDialog @confirm="deleteLimit()">
+      <template v-slot:message>
+        Are you sure you want to remove this limit?
+      </template>
+    </ConfirmRemoveDialog>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -39,6 +46,8 @@ import { useUserGroupStore } from 'src/stores/user-group-store';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { type Limit } from 'src/components/db_models';
 import LimitItem from 'src/components/limit-components/LimitItem.vue';
+import ConfirmRemoveDialog from 'src/components/ConfirmRemoveDialog.vue';
+import { ref } from 'vue';
 
 const router = useRouter();
 const limitStore = useLimitStore();
@@ -49,6 +58,8 @@ const resources = computed(() => nodeResourceStore.getResources);
 const limits = computed(() => limitStore.getLimits);
 const users = computed(() => userGroupStore.getUsers);
 const groups = computed(() => userGroupStore.getGroups);
+const selectedLimit = ref<Limit | null>(null);
+const showRemoveDialog = ref(false);
 
 onMounted(async () => {
   try {
@@ -73,6 +84,11 @@ onMounted(async () => {
   }
 });
 
+function openConfirmDialog(limit: Limit) {
+  selectedLimit.value = limit;
+  showRemoveDialog.value = true;
+}
+
 async function editLimit(limit: Limit) {
   await router.push({ name: 'limit', params: { id: limit.id } });
 }
@@ -81,9 +97,9 @@ async function addLimit() {
   await router.push({ name: 'limit', params: { id: 'new' } });
 }
 
-async function deleteLimit(limit: Limit) {
+async function deleteLimit() {
   try {
-    await limitStore.deleteLimit(limit);
+    await limitStore.deleteLimit(selectedLimit.value!);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -93,5 +109,6 @@ async function deleteLimit(limit: Limit) {
       message: getMessageFromError(error, 'Failed to delete limit!'),
     });
   }
+  showRemoveDialog.value = false;
 }
 </script>

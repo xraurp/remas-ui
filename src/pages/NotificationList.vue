@@ -22,13 +22,20 @@
               flat
               color="negative"
               label="Delete"
-              @click="deleteNotification(item)"
+              @click="openConfirmDialog(item)"
             />
           </template>
         </notification-item>
       </template>
     </div>
   </q-page>
+  <q-dialog v-model="showRemoveDialog" persistent>
+    <ConfirmRemoveDialog @confirm="deleteNotification()">
+      <template v-slot:message>
+        Are you sure you want to remove this notification?
+      </template>
+    </ConfirmRemoveDialog>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -41,6 +48,8 @@ import { type Notification } from 'src/components/db_models';
 import NotificationItem from 'src/components/notification-components/NotificationItem.vue';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { useAuthStore } from 'src/stores/auth-store';
+import ConfirmRemoveDialog from 'src/components/ConfirmRemoveDialog.vue';
+import { ref } from 'vue';
 
 const $q = useQuasar();
 const notificationStore = useNotificationStore();
@@ -48,6 +57,8 @@ const nodeResourceStore = useNodeResourceStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const notifications = computed(() => notificationStore.getNotifications);
+const selectedNotification = ref<Notification | null>(null);
+const showRemoveDialog = ref(false);
 
 onMounted(async () => {
   try {
@@ -70,6 +81,11 @@ onMounted(async () => {
   }
 });
 
+function openConfirmDialog(notification: Notification) {
+  selectedNotification.value = notification;
+  showRemoveDialog.value = true;
+}
+
 async function addNotification() {
   await router.push({ name: 'notification', params: { id: 'new' } });
 }
@@ -78,9 +94,9 @@ async function editNotification(notification: Notification) {
   await router.push({ name: 'notification', params: { id: notification.id } });
 }
 
-async function deleteNotification(notification: Notification) {
+async function deleteNotification() {
   try {
-    await notificationStore.deleteNotification(notification);
+    await notificationStore.deleteNotification(selectedNotification.value!);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);

@@ -48,11 +48,11 @@
     </div>
   </div>
   <q-dialog v-model="showRemoveDialog" persistent>
-    <ConfirmDialog @confirm="removeNotification()">
+    <ConfirmRemoveDialog @confirm="removeNotification()">
       <template v-slot:message>
         Are you sure you want to remove this notification?
       </template>
-    </ConfirmDialog>
+    </ConfirmRemoveDialog>
   </q-dialog>
 </template>
 
@@ -69,7 +69,7 @@ import { computed, onMounted, ref } from 'vue';
 import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import NotificationItem from './NotificationItem.vue';
-import ConfirmDialog from '../ConfirmDialog.vue';
+import ConfirmRemoveDialog from '../ConfirmRemoveDialog.vue';
 
 const props = defineProps<{
   user?: User;

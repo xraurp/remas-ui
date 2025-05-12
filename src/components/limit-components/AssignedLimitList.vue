@@ -33,11 +33,11 @@
     </div>
   </div>
   <q-dialog v-model="showRemoveDialog" persistent>
-    <ConfirmDialog @confirm="removeLimit()">
+    <ConfirmRemoveDialog @confirm="removeLimit()">
       <template v-slot:message>
         Are you sure you want to remove this limit?
       </template>
-    </ConfirmDialog>
+    </ConfirmRemoveDialog>
   </q-dialog>
 </template>
 
@@ -47,7 +47,7 @@ import { computed, onMounted, ref } from 'vue';
 import { getMessageFromError } from '../aux_functions';
 import { useQuasar } from 'quasar';
 import LimitItem from './LimitItem.vue';
-import ConfirmDialog from '../ConfirmDialog.vue';
+import ConfirmRemoveDialog from '../ConfirmRemoveDialog.vue';
 import { useLimitStore } from 'src/stores/limit-store';
 import { useNodeResourceStore } from 'src/stores/node-resource-store';
 import { useRouter } from 'vue-router';

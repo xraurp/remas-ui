@@ -57,7 +57,7 @@
               <q-btn flat color="primary" @click="editAmount(resource)"
                 >Edit amount</q-btn
               >
-              <q-btn flat color="negative" @click="removeResource(resource)"
+              <q-btn flat color="negative" @click="showRemoveDialog(resource)"
                 >Remove</q-btn
               >
             </template>
@@ -98,6 +98,13 @@
         v-on:confirm-amount="confirmAddResource"
       />
     </q-dialog>
+    <q-dialog v-model="openConfirmRemoveDialog" persistent>
+      <ConfirmRemoveDialog @confirm="removeResource()">
+        <template v-slot:message>
+          Are you sure you want to remove this resource?
+        </template>
+      </ConfirmRemoveDialog>
+    </q-dialog>
   </div>
 </template>
 
@@ -110,6 +117,7 @@ import type { NodeResource, Resource } from '../db_models';
 import { Unit } from '../db_models';
 import ResourceItem from 'src/components/resource-components/ResourceItem.vue';
 import ResourceAmountDialog from 'src/components/resource-components/ResourceAmountDialog.vue';
+import ConfirmRemoveDialog from 'src/components/ConfirmRemoveDialog.vue';
 
 const props = defineProps<{
   node_id: number;
@@ -123,6 +131,7 @@ const showResourceList = ref(false);
 // add resource dialog
 const selectedResource = ref<Resource>();
 const openDialog = ref(false);
+const openConfirmRemoveDialog = ref(false);
 const amount = ref(0);
 
 onMounted(async () => {
@@ -177,7 +186,8 @@ function getAddResourceButtonLabel(): string {
   return 'Add resource';
 }
 
-async function removeResource(resource: NodeResource) {
+async function removeResource() {
+  const resource = selectedResource.value;
   if (!node || !resource) {
     $q.notify({ type: 'negative', message: 'Failed to remove resource!' });
     return;
@@ -193,12 +203,18 @@ async function removeResource(resource: NodeResource) {
     return;
   }
   node.resources = node.resources?.filter((r) => r.id !== resource.id) || [];
+  openConfirmRemoveDialog.value = false;
 }
 
 function editAmount(resource: NodeResource) {
   openDialog.value = true;
   selectedResource.value = resource;
   amount.value = resource.amount;
+}
+
+function showRemoveDialog(resource: NodeResource) {
+  openConfirmRemoveDialog.value = true;
+  selectedResource.value = resource;
 }
 
 async function confirmAddResource(newAmount: {

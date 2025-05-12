@@ -31,10 +31,7 @@
     </q-card-section>
 
     <q-card-actions align="around">
-      <q-btn flat color="primary" @click="props.editFunction(props.user)"
-        >Edit</q-btn
-      >
-      <q-btn flat color="negative" @click="delUser(props.user)">Delete</q-btn>
+      <slot name="actions"></slot>
     </q-card-actions>
   </q-card>
 </template>
@@ -42,34 +39,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { User } from '../db_models';
-import { useQuasar } from 'quasar';
-import { getFirstLetter, getMessageFromError } from '../aux_functions';
+import { getFirstLetter } from '../aux_functions';
 
 const props = defineProps<{
   user: User;
-  editFunction: (user: User) => Promise<void>;
-  deleteFunction: (user: User) => Promise<void>;
 }>();
-
-const $q = useQuasar();
 
 const getLetter = computed(() => getFirstLetter(props.user));
 
 const showName = computed(() => {
   return props.user.name && props.user.surname;
 });
-
-async function delUser(user: User) {
-  try {
-    await props.deleteFunction(user);
-  } catch (error) {
-    if (process.env.dev) {
-      console.log(error);
-    }
-    $q.notify({
-      type: 'negative',
-      message: getMessageFromError(error, 'Failed to delete user!'),
-    });
-  }
-}
 </script>

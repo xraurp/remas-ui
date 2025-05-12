@@ -13,7 +13,7 @@
         >
           <template v-slot:actions>
             <q-btn flat color="primary" @click="editNode(item)">Edit</q-btn>
-            <q-btn flat color="negative" @click="deleteNode(item)"
+            <q-btn flat color="negative" @click="openConfirmDialog(item)"
               >Delete</q-btn
             >
           </template>
@@ -21,6 +21,13 @@
       </template>
     </div>
   </q-page>
+  <q-dialog v-model="showRemoveDialog" persistent>
+    <ConfirmRemoveDialog @confirm="deleteNode()">
+      <template v-slot:message>
+        Are you sure you want to remove this node?
+      </template>
+    </ConfirmRemoveDialog>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -31,11 +38,15 @@ import { getMessageFromError } from 'src/components/aux_functions';
 import NodeItem from 'src/components/node-components/NodeItem.vue';
 import { useRouter } from 'vue-router';
 import { type Node } from 'src/components/db_models';
+import ConfirmRemoveDialog from 'src/components/ConfirmRemoveDialog.vue';
+import { ref } from 'vue';
 
 const $q = useQuasar();
 const nodeResourceStore = useNodeResourceStore();
 const router = useRouter();
 const nodes = computed(() => nodeResourceStore.getNodes);
+const selectedNode = ref<Node | null>(null);
+const showRemoveDialog = ref(false);
 
 onMounted(async () => {
   try {
@@ -51,6 +62,11 @@ onMounted(async () => {
   }
 });
 
+function openConfirmDialog(node: Node) {
+  selectedNode.value = node;
+  showRemoveDialog.value = true;
+}
+
 async function editNode(node: Node) {
   await router.push({ name: 'node', params: { id: node.id } });
 }
@@ -59,9 +75,9 @@ async function addNode() {
   await router.push({ name: 'node', params: { id: 'new' } });
 }
 
-async function deleteNode(node: Node) {
+async function deleteNode() {
   try {
-    await nodeResourceStore.deleteNode(node);
+    await nodeResourceStore.deleteNode(selectedNode.value!);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);

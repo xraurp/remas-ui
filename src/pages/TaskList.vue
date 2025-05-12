@@ -20,7 +20,7 @@
           <q-btn flat color="primary" @click="editTask(item)">
             Reschedule task
           </q-btn>
-          <q-btn flat color="negative" @click="deleteTask(item)">
+          <q-btn flat color="negative" @click="openConfirmDialog(item)">
             Cancel task
           </q-btn>
         </template>
@@ -44,6 +44,13 @@
       <q-btn color="primary" label="Load more" @click="loadFinished" />
     </div>
   </q-page>
+  <q-dialog v-model="showRemoveDialog" persistent>
+    <ConfirmRemoveDialog @confirm="deleteTask()">
+      <template v-slot:message>
+        Are you sure you want to remove this task?
+      </template>
+    </ConfirmRemoveDialog>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -55,6 +62,7 @@ import { getMessageFromError } from 'src/components/aux_functions';
 import { computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'src/stores/auth-store';
+import ConfirmRemoveDialog from 'src/components/ConfirmRemoveDialog.vue';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -65,6 +73,14 @@ const router = useRouter();
 const taskStore = useTaskStore();
 const authStore = useAuthStore();
 const $q = useQuasar();
+
+const selectedTask = ref<Task | null>(null);
+const showRemoveDialog = ref(false);
+
+function openConfirmDialog(task: Task) {
+  selectedTask.value = task;
+  showRemoveDialog.value = true;
+}
 
 const tasks = computed(() => {
   if (props.all_tasks) {
@@ -165,11 +181,9 @@ async function editTask(task: Task) {
   await router.push({ name: 'task', params: { id: task.id } });
 }
 
-async function deleteTask(task: Task) {
+async function deleteTask() {
   try {
-    if (task.id) {
-      await taskStore.deleteTask(task.id);
-    }
+    await taskStore.deleteTask(selectedTask.value!.id!);
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
