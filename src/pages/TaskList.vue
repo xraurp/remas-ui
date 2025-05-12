@@ -2,7 +2,12 @@
   <q-page padding>
     <div class="text-h3">Tasks</div>
     <q-separator class="q-mb-md" />
-    <q-btn color="green" label="Add task" @click="addTask" />
+    <q-btn
+      color="green"
+      label="Add task"
+      @click="addTask"
+      v-if="!props.all_tasks"
+    />
     <div class="q-pa-md row items-start q-gutter-md">
       <task-item
         v-for="item in tasks"
@@ -11,7 +16,7 @@
         :show_owner="false"
         style="min-height: 200px; min-width: 400px"
       >
-        <template v-slot:actions>
+        <template v-slot:actions v-if="!props.all_tasks">
           <q-btn flat color="primary" @click="editTask(item)">
             Reschedule task
           </q-btn>
@@ -50,20 +55,41 @@ import { getMessageFromError } from 'src/components/aux_functions';
 import { computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'src/stores/auth-store';
+import { ref } from 'vue';
+
+const props = defineProps<{
+  all_tasks: boolean | undefined;
+}>();
 
 const router = useRouter();
 const taskStore = useTaskStore();
 const authStore = useAuthStore();
 const $q = useQuasar();
 
-const tasks = computed(() => taskStore.getTasks);
-const finishedTasks = computed(() => taskStore.getFinishedTasks);
-let pageNumber = 0;
-let finishedPageNumber = 0;
+const tasks = computed(() => {
+  if (props.all_tasks) {
+    return taskStore.getAllTasks;
+  } else {
+    return taskStore.getTasks;
+  }
+});
+const finishedTasks = computed(() => {
+  if (props.all_tasks) {
+    return taskStore.getAllFinishedTasks;
+  } else {
+    return taskStore.getFinishedTasks;
+  }
+});
+const pageNumber = ref(0);
+const finishedPageNumber = ref(0);
 
 async function loadMore() {
   try {
-    await taskStore.fetchTasks(pageNumber, authStore.getUserId);
+    if (props.all_tasks) {
+      await taskStore.fetchTasks(pageNumber.value);
+    } else {
+      await taskStore.fetchTasks(pageNumber.value, authStore.getUserId);
+    }
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -74,12 +100,24 @@ async function loadMore() {
     });
     return;
   }
-  pageNumber++;
+  if (tasks.value.length > taskStore.pageSize * pageNumber.value) {
+    pageNumber.value++;
+  }
+  if (process.env.debug) {
+    console.log(pageNumber.value);
+  }
 }
 
 async function loadFinished() {
   try {
-    await taskStore.fetchFinishedTasks(finishedPageNumber, authStore.getUserId);
+    if (props.all_tasks) {
+      await taskStore.fetchFinishedTasks(finishedPageNumber.value);
+    } else {
+      await taskStore.fetchFinishedTasks(
+        finishedPageNumber.value,
+        authStore.getUserId,
+      );
+    }
   } catch (error) {
     if (process.env.debug) {
       console.log(error);
@@ -90,7 +128,15 @@ async function loadFinished() {
     });
     return;
   }
-  finishedPageNumber++;
+  if (
+    finishedTasks.value.length >
+    taskStore.pageSize * finishedPageNumber.value
+  ) {
+    finishedPageNumber.value++;
+  }
+  if (process.env.debug) {
+    console.log(finishedPageNumber.value);
+  }
 }
 
 async function addTask() {

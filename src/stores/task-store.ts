@@ -13,6 +13,8 @@ export const useTaskStore = defineStore('taskStore', {
   state: () => ({
     tasks: <TaskResponse[]>[],
     finishedTasks: <TaskResponse[]>[],
+    allTasks: <TaskResponse[]>[],
+    allFinishedTasks: <TaskResponse[]>[],
     resourceSchedule: <UsagePeriod[]>[],
     pageSize: 40,
     // data related to task scheduler calendar integration
@@ -24,6 +26,8 @@ export const useTaskStore = defineStore('taskStore', {
   getters: {
     getTasks: (state) => state.tasks,
     getFinishedTasks: (state) => state.finishedTasks,
+    getAllTasks: (state) => state.allTasks,
+    getAllFinishedTasks: (state) => state.allFinishedTasks,
     getResourceSchedule: (state) => state.resourceSchedule,
     getPageSize: (state) => state.pageSize,
     getSelectedTask: (state) => state.selectedTask,
@@ -53,12 +57,23 @@ export const useTaskStore = defineStore('taskStore', {
         page_number: page_number,
         page_size: this.pageSize,
       });
-      for (const task of data) {
-        const t = this.tasks.find((t) => t.id === task.id);
-        if (!t) {
-          this.tasks.push(task);
-        } else {
-          this.tasks[this.tasks.indexOf(t)] = task;
+      if (user_id) {
+        for (const task of data) {
+          const t = this.tasks.find((t) => t.id === task.id);
+          if (!t) {
+            this.tasks.push(task);
+          } else {
+            this.tasks[this.tasks.indexOf(t)] = task;
+          }
+        }
+      } else {
+        for (const task of data) {
+          const t = this.allTasks.find((t) => t.id === task.id);
+          if (!t) {
+            this.allTasks.push(task);
+          } else {
+            this.allTasks[this.allTasks.indexOf(t)] = task;
+          }
         }
       }
     },
@@ -74,12 +89,23 @@ export const useTaskStore = defineStore('taskStore', {
         page_number,
         page_size: this.pageSize,
       });
-      for (const task of data) {
-        const t = this.finishedTasks.find((t) => t.id === task.id);
-        if (!t) {
-          this.finishedTasks.push(task);
-        } else {
-          this.finishedTasks[this.finishedTasks.indexOf(t)] = task;
+      if (user_id) {
+        for (const task of data) {
+          const t = this.finishedTasks.find((t) => t.id === task.id);
+          if (!t) {
+            this.finishedTasks.push(task);
+          } else {
+            this.finishedTasks[this.finishedTasks.indexOf(t)] = task;
+          }
+        }
+      } else {
+        for (const task of data) {
+          const t = this.allFinishedTasks.find((t) => t.id === task.id);
+          if (!t) {
+            this.allFinishedTasks.push(task);
+          } else {
+            this.allFinishedTasks[this.allFinishedTasks.indexOf(t)] = task;
+          }
         }
       }
     },

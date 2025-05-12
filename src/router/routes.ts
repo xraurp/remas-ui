@@ -14,9 +14,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    // TODO - change to task list!
-    children: [{ path: '', component: () => import('pages/TaskList.vue') }],
+    redirect: { name: 'tasks' },
   },
   {
     path: '/profile',
@@ -195,6 +193,7 @@ const routes: RouteRecordRaw[] = [
         name: 'tasks',
         component: () => import('pages/TaskList.vue'),
         meta: { adminOnly: false },
+        props: { all_tasks: false },
       },
       {
         path: ':id',
@@ -208,6 +207,20 @@ const routes: RouteRecordRaw[] = [
         name: 'task-new',
         component: () => import('pages/TaskScheduler.vue'),
         meta: { adminOnly: false },
+      },
+    ],
+  },
+  {
+    path: '/all-tasks',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { adminOnly: false },
+    children: [
+      {
+        path: '',
+        name: 'all-tasks',
+        component: () => import('pages/TaskList.vue'),
+        meta: { adminOnly: false },
+        props: { all_tasks: true },
       },
     ],
   },
