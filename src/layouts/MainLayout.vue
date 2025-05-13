@@ -36,25 +36,33 @@
           v-for="drawerItem in leftDrawerContent"
           :key="drawerItem.label"
         >
-          <q-item-label v-if="drawerItem.label" header>{{
-            drawerItem.label
-          }}</q-item-label>
-          <q-separator v-if="drawerItem.label" />
-          <template v-for="item in drawerItem.pages" :key="item.label">
-            <q-item v-if="'link' in item" clickable :to="{ name: item.link }">
-              <q-item-section>
-                <q-item-label style="text-align: center">{{
-                  item.label
-                }}</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item v-else clickable @click="item.action">
-              <q-item-section>
-                <q-item-label style="text-align: center">{{
-                  item.label
-                }}</q-item-label>
-              </q-item-section>
-            </q-item>
+          <template v-if="!drawerItem.adminOnly || authStore.isAdmin">
+            <q-item-label v-if="drawerItem.label" header>{{
+              drawerItem.label
+            }}</q-item-label>
+            <q-separator v-if="drawerItem.label" />
+            <template v-for="item in drawerItem.pages" :key="item.label">
+              <template v-if="!item.adminOnly || authStore.isAdmin">
+                <q-item
+                  v-if="'link' in item"
+                  clickable
+                  :to="{ name: item.link }"
+                >
+                  <q-item-section>
+                    <q-item-label style="text-align: center">{{
+                      item.label
+                    }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item v-else clickable @click="item.action">
+                  <q-item-section>
+                    <q-item-label style="text-align: center">{{
+                      item.label
+                    }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </template>
           </template>
         </template>
       </q-list>
@@ -98,6 +106,7 @@ const leftDrawerContent = [
       {
         label: 'Tasks',
         link: 'tasks',
+        adminOnly: false,
       },
     ],
   },
@@ -108,10 +117,12 @@ const leftDrawerContent = [
       {
         label: 'Cluster status',
         action: openGrafanalink,
+        adminOnly: false,
       },
       {
         label: 'All tasks',
         link: 'all-tasks',
+        adminOnly: false,
       },
     ],
   },
@@ -122,18 +133,22 @@ const leftDrawerContent = [
       {
         label: 'Users',
         link: 'users',
+        adminOnly: true,
       },
       {
         label: 'Groups',
         link: 'groups',
+        adminOnly: true,
       },
       {
         label: 'Nodes',
         link: 'nodes',
+        adminOnly: true,
       },
       {
         label: 'Resources',
         link: 'resources',
+        adminOnly: true,
       },
     ],
   },
@@ -144,6 +159,7 @@ const leftDrawerContent = [
       {
         label: 'Notifications',
         link: 'notifications',
+        adminOnly: false,
       },
       {
         label: 'Resource limits',
