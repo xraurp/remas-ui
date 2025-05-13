@@ -13,7 +13,7 @@
         v-for="item in tasks"
         :key="item.id!"
         :task="item"
-        :show_owner="false"
+        :show_owner="all_tasks ? true : false"
         style="min-height: 200px; min-width: 400px"
       >
         <template v-slot:actions v-if="!props.all_tasks">
@@ -36,7 +36,7 @@
         v-for="item in finishedTasks"
         :key="item.id!"
         :task="item"
-        :show_owner="false"
+        :show_owner="all_tasks ? true : false"
         style="min-height: 200px; min-width: 400px"
       />
     </div>

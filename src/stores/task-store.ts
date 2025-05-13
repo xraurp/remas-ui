@@ -193,6 +193,8 @@ export const useTaskStore = defineStore('taskStore', {
     logout() {
       this.tasks = [];
       this.finishedTasks = [];
+      this.allTasks = [];
+      this.allFinishedTasks = [];
       this.resourceSchedule = [];
       this.selectedTask = 0;
       this.previousStart = '';

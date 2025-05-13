@@ -23,7 +23,7 @@
       </div>
       <div class="row" v-if="props.task.owner && props.show_owner">
         <div class="col">Task owner:</div>
-        <div class="col">{{ props.task.owner.name }}</div>
+        <div class="col">{{ getOwnerName(props.task) }}</div>
       </div>
       <q-separator v-if="props.task.description" />
       <div v-if="props.task.description">
@@ -104,6 +104,17 @@ function getNodeAllocation(task: TaskResponse) {
     }
   }
   return nodes;
+}
+
+function getOwnerName(task: TaskResponse) {
+  const owner = task.owner;
+  if (!owner) {
+    return '';
+  }
+  if (owner.name && owner.surname) {
+    return `${owner.name} ${owner.surname}`;
+  }
+  return owner.username;
 }
 
 const nodes = computed(() => getNodeAllocation(props.task));
