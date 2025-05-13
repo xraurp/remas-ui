@@ -40,19 +40,22 @@
             drawerItem.label
           }}</q-item-label>
           <q-separator v-if="drawerItem.label" />
-          <q-item
-            v-for="item in drawerItem.pages"
-            :key="item.label"
-            clickable
-            :to="{ name: item.link }"
-          >
-            <q-item-section>
-              <q-item-label style="text-align: center">{{
-                item.label
-              }}</q-item-label>
-            </q-item-section>
-            <!-- TODO - add link - router action! -->
-          </q-item>
+          <template v-for="item in drawerItem.pages" :key="item.label">
+            <q-item v-if="'link' in item" clickable :to="{ name: item.link }">
+              <q-item-section>
+                <q-item-label style="text-align: center">{{
+                  item.label
+                }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-else clickable @click="item.action">
+              <q-item-section>
+                <q-item-label style="text-align: center">{{
+                  item.label
+                }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
         </template>
       </q-list>
     </q-drawer>
@@ -73,6 +76,7 @@ import { useTaskStore } from 'src/stores/task-store';
 import { useUserGroupStore } from 'src/stores/user-group-store';
 import { getFirstLetter } from 'src/components/aux_functions';
 import { useRouter } from 'vue-router';
+import { apiRequest } from 'src/components/aux_functions';
 
 //import { pageNavigationCategory, pageNavigationItem } from 'components/models';
 const authStore = useAuthStore();
@@ -103,7 +107,7 @@ const leftDrawerContent = [
     pages: [
       {
         label: 'Cluster status',
-        link: 'cluster-status',
+        action: openGrafanalink,
       },
       {
         label: 'All tasks',
@@ -151,6 +155,15 @@ const leftDrawerContent = [
 ];
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+async function openGrafanalink() {
+  const data = await apiRequest<string, { detail: string }>(
+    '/grafana-link',
+    'Failed to get grafana link!',
+    'get',
+  );
+  window.open(data.detail, '_blank');
 }
 
 async function onLogout() {
