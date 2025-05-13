@@ -1,3 +1,9 @@
+/**
+ * This file is partially based on Vue schedule-x example provided by
+ * Tom Österlund, author of ScheduleX calendar library used in this project.
+ * Original code is available at the following link
+ * https://github.com/schedule-x/vue-example
+ */
 import '@schedule-x/theme-default/dist/index.css';
 import {
   createCalendar,

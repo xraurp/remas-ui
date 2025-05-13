@@ -50,6 +50,12 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * This file is partially based on Vue schedule-x example provided by
+ * Tom Österlund, author of ScheduleX calendar library used in this project.
+ * Original code is available at the following link
+ * https://github.com/schedule-x/vue-example
+ */
 import { type PropType, ref } from 'vue';
 import { eventModalPlugin, eventServicePlugin } from './TaskCalendarConfig';
 import TaskTimedatePicker from './TaskTimedatePicker.vue';
