@@ -19,9 +19,9 @@ function getUTCTime() {
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    accessToken: '',
-    refreshToken: '',
-    user: <User>{},
+    accessToken: sessionStorage.getItem('accessToken') || '',
+    refreshToken: sessionStorage.getItem('refreshToken') || '',
+    user: JSON.parse(sessionStorage.getItem('user') || '{}') || <User>{},
   }),
   getters: {
     isAdmin: (state) => {
@@ -69,9 +69,12 @@ export const useAuthStore = defineStore('auth', {
     setTokens(accessToken: string, refreshToken: string) {
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
+      sessionStorage.setItem('accessToken', accessToken);
+      sessionStorage.setItem('refreshToken', refreshToken);
     },
     setUser(user: User) {
       this.user = user;
+      sessionStorage.setItem('user', JSON.stringify(user));
     },
     async fetchUser() {
       let response = null;
@@ -84,6 +87,7 @@ export const useAuthStore = defineStore('auth', {
         throw new Error(getMessageFromError(error, 'Failed to fetch user!'));
       }
       this.user = response.data;
+      sessionStorage.setItem('user', JSON.stringify(response.data));
     },
     async updateUserPassword(newPassword: string, oldPassword: string) {
       const message = {
@@ -102,6 +106,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     logout() {
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('refreshToken');
+      sessionStorage.removeItem('user');
       this.accessToken = '';
       this.refreshToken = '';
       this.user = <User>{};
