@@ -145,6 +145,7 @@ import { formatDatetime } from 'src/components/calendarDateFormat';
 import { useRouter } from 'vue-router';
 import { useLimitStore } from 'src/stores/limit-store';
 import { useAuthStore } from 'src/stores/auth-store';
+import { useUserGroupStore } from 'src/stores/user-group-store';
 
 const props = defineProps({
   id: {
@@ -163,6 +164,7 @@ interface SelectedResource {
 const numericId = computed(() => getNumericId(props.id));
 
 const nodeResourceStore = useNodeResourceStore();
+const userGroupStore = useUserGroupStore();
 const limitStore = useLimitStore();
 const authStore = useAuthStore();
 const taskStore = useTaskStore();
@@ -197,38 +199,63 @@ let task: TaskResponse;
  */
 function showResourceSchedule() {
   for (const period of taskStore.getResourceSchedule) {
+    // unavailable resources
+    const unavailable_resources = period.available_resources.filter((ar) =>
+      selectedResources.value.find(
+        (sr) => sr.value.id === ar.resource_id && sr.value.amount > ar.amount,
+      ),
+    );
     // nodes with not enough resources
-    const node_ids = period.available_resources
-      .filter((ar) =>
-        selectedResources.value.find(
-          (sr) => sr.value.id === ar.resource_id && sr.value.amount > ar.amount,
-        ),
-      )
-      .map((ar) => ar.node_id);
+    const node_ids = unavailable_resources.map((ar) => ar.node_id);
+    const user_ids: number[] = [];
+    for (const id of unavailable_resources.map((ar) => ar.user_ids).flat()) {
+      if (!user_ids.includes(id)) {
+        user_ids.push(id);
+      }
+    }
     const start_time = formatDatetime(period.start_time);
     const end_time = formatDatetime(period.end_time);
     const event_id = date.formatDate(
       new Date(period.start_time),
-      'YYYYMMDDHHMM',
+      'YYYYMMDDHHmmss',
     );
     const event = eventServicePlugin.get(event_id);
+    // remove event if no nodes are unavailable
     if (!node_ids.length) {
       if (event) {
         eventServicePlugin.remove(event.id);
       }
       continue;
     }
+
     const nodes = nodeResourceStore.getNodes.filter((n) =>
       node_ids.includes(n.id!),
     );
+    const users = userGroupStore.getUsers
+      .filter((u) => user_ids.includes(u.id!))
+      .map((u) => {
+        let username = u.name + ' ' + u.surname;
+        if (!u.name || !u.surname) {
+          username = u.username;
+        }
+        return `${username} - ${u.email}`;
+      });
+
     const event_body = {
       id: event_id,
       title: `Unavalible nodes: ${nodes.map((n) => n.name).join(', ')}!`,
-      description: `Unavalible nodes: ${nodes.map((n) => n.name).join(', ')}!`,
+      description:
+        `Unavalible nodes: ${nodes.map((n) => n.name).join(', ')}!\n` +
+        `Users using the resources:\n${users.join('\n')}`,
       start: start_time,
       end: end_time,
       calendarId: 'nodes',
+      _options: {
+        disableDND: true,
+        disableResize: true,
+      },
     };
+
     if (event) {
       eventServicePlugin.update(event_body);
     } else {
@@ -546,6 +573,9 @@ onMounted(async () => {
   }
   try {
     limits = await limitStore.getAllUserLimits(authStore.getUserId);
+    if (!userGroupStore.getUsers.length) {
+      await userGroupStore.fetchUsers();
+    }
     if (!nodeResourceStore.getResources.length) {
       await nodeResourceStore.fetchResources();
     }

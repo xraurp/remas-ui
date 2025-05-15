@@ -210,6 +210,7 @@ export interface ResourceAvailability {
   node_id: number;
   resource_id: number;
   amount: number;
+  user_ids: number[]; // ids of users using this resource
 }
 
 export interface UsagePeriod {
