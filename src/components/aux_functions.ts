@@ -104,10 +104,10 @@ export function isAlertNotification(notificationType: NotificationType) {
 
 export function getUnitList(unit: Unit = Unit.NONE): string[] {
   if (unit === Unit.BYTES_SI) {
-    return ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    return ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
   }
   if (unit === Unit.BYTES_IEC) {
-    return ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    return ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
   }
   return [''];
 }
