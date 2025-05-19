@@ -84,6 +84,9 @@ const entityNotifications = ref<AssignedNotificaion[]>([]);
 const selectedNotification = ref<AssignedNotificaion>();
 const showRemoveDialog = ref(false);
 
+/**
+ * Gets notifications for user or group from store
+ */
 async function getEntityNotifications() {
   let result: GroupNotifications[] = [];
   try {
@@ -139,6 +142,7 @@ onMounted(async () => {
   console.log(entityNotifications.value);
 });
 
+// List of notifications assigned to user or group
 const notifications = computed(() => {
   if (props.is_profile) {
     return notificationStore.getNotifications
@@ -153,6 +157,11 @@ const notifications = computed(() => {
   );
 });
 
+/**
+ * Checks if a notification is assigned to the current user or group
+ * or inherited from parent.
+ * @returns {boolean} True if the notification is assigned to the current user or group
+ */
 function showRemoveButton(notification: AssignedNotificaion) {
   if (props.user && notification.group_id === null) {
     return true;
@@ -162,6 +171,10 @@ function showRemoveButton(notification: AssignedNotificaion) {
   return false;
 }
 
+/**
+ * Adds notification to current user
+ * @param notification Notification to add
+ */
 async function addUserNotification(notification: Notification) {
   if (!props.user || !props.user.id) {
     $q.notify({
@@ -201,6 +214,10 @@ async function addUserNotification(notification: Notification) {
     });
 }
 
+/**
+ * Adds notification to current group
+ * @param notification Notification to add
+ */
 async function addGroupNotification(notification: Notification) {
   if (!props.group || !props.group.id) {
     $q.notify({
@@ -238,6 +255,11 @@ async function addGroupNotification(notification: Notification) {
       });
     });
 }
+
+/**
+ * Adds notification to current user or group
+ * @param notification Notification to add
+ */
 async function addNotification(notification: Notification) {
   console.log(notification);
   console.log(props);
@@ -253,6 +275,10 @@ async function addNotification(notification: Notification) {
   }
 }
 
+/**
+ * Removes notification from current user
+ * @param notification Notification to remove
+ */
 async function removeUserNotification(
   assignedNotificaion: AssignedNotificaion,
 ) {
@@ -299,6 +325,10 @@ async function removeUserNotification(
     });
 }
 
+/**
+ * Removes notification from current group
+ * @param notification Notification to remove
+ */
 async function removeGroupNotification(
   assignedNotificaion: AssignedNotificaion,
 ) {
@@ -348,6 +378,10 @@ function openConfirmDialog(notification: AssignedNotificaion) {
   selectedNotification.value = notification;
 }
 
+/**
+ * Removes notification from current user or group.
+ * Notification to remove is stored in selectedNotification variable.
+ */
 async function removeNotification() {
   if (!selectedNotification.value) {
     $q.notify({
@@ -369,10 +403,16 @@ async function removeNotification() {
   }
 }
 
+/**
+ * Toggles list of unassigned notifications
+ */
 function onShowList() {
   showUnassignedNotifications.value = !showUnassignedNotifications.value;
 }
 
+/**
+ * Returns label for add notifications button
+ */
 function getButtonLabel() {
   if (showUnassignedNotifications.value) {
     return 'Done';

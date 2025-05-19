@@ -55,6 +55,12 @@ function getLimitForResource(resource: NodeResource): Limit | undefined {
   return limits[0];
 }
 
+/**
+ * Returns the color of the chip for a resource.
+ * If the resource is limited, the chip is red.
+ * @param resource The resource to get the color for.
+ * @returns The color of the chip.
+ */
 function getChipColor(resource: NodeResource): string {
   const limit = getLimitForResource(resource);
   if (limit && limit.amount < resource.amount) {
@@ -63,6 +69,12 @@ function getChipColor(resource: NodeResource): string {
   return 'primary';
 }
 
+/**
+ * Returns the label of the chip for a resource.
+ * If the resource is limited, the label is appended with the limit.
+ * @param resource The resource to get the label for.
+ * @returns The label of the chip.
+ */
 function getChipLabel(resource: NodeResource): string {
   const limit = getLimitForResource(resource);
   const resourceAmount = getConversion(

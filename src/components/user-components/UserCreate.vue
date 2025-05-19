@@ -152,6 +152,9 @@ function onCancel() {
   router.back();
 }
 
+/**
+ * Creates a new user
+ */
 function onSubmit() {
   assignGroupIdToUser(selectedGroupName.value);
 

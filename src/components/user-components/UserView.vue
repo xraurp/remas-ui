@@ -193,6 +193,12 @@ function copyUser(user?: User) {
   };
 }
 
+/**
+ * Compares two user objects.
+ * @param user1 The first user object.
+ * @param user2 The second user object.
+ * @returns True if the two user objects are equal, false otherwise.
+ */
 function compareUsers(user1?: User, user2?: User) {
   let cmp = user1?.id === user2?.id;
   cmp = cmp && user1?.name === user2?.name;

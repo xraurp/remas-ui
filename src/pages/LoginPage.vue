@@ -8,7 +8,6 @@
       <q-card bordered>
         <q-card-section>
           <div class="text-h5">Login to REMAS</div>
-          <!--div class="text-subtitle2">Subtitle</div-->
         </q-card-section>
 
         <q-separator inset />

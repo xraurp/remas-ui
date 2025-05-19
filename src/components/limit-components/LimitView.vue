@@ -182,6 +182,7 @@ const selectedAmount = ref(0);
 const unit = ref('');
 const nodes = ref<Node[]>([]);
 
+// list of options for select target dropdown (target = user or group affected by the limit)
 const targetOptions = computed(() => {
   const data = [];
   for (const user of userGroupStore.getUsers) {
@@ -202,6 +203,9 @@ const resourceOptions = computed(() => nodeResourceStore.getResources);
 const nodeOptions = computed(() => nodeResourceStore.getNodes);
 const unitOptions = ref<string[]>([]);
 
+/**
+ * When resource is changed, update unit list
+ */
 function onResourceChanged(value: Resource | null) {
   if (value) {
     unitOptions.value = getUnitList(value.unit || Unit.NONE);
@@ -245,6 +249,9 @@ function resetEditValues() {
 
 resetEditValues();
 
+/**
+ * Compares two arrays of nodes if they are equal
+ */
 function compareNodes() {
   if (nodes.value.length !== limit?.node_ids.length) {
     return false;
@@ -257,6 +264,10 @@ function compareNodes() {
   return true;
 }
 
+/**
+ * Checks if there are any changes to the limit
+ * @returns {boolean} True if there are no changes
+ */
 function compareEdit() {
   let cmp = limitName.value === limit?.name;
   cmp = cmp && description.value === limit?.description;
@@ -289,6 +300,9 @@ function onEdit() {
   readOnly.value = false;
 }
 
+/**
+ * Submits the changes to the limit
+ */
 async function onSubmit() {
   // check for changes
   if (compareEdit()) {

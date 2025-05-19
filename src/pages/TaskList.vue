@@ -99,6 +99,9 @@ const finishedTasks = computed(() => {
 const pageNumber = ref(0);
 const finishedPageNumber = ref(0);
 
+/**
+ * Loads one more page of tasks.
+ */
 async function loadPage(page: number) {
   if (props.all_tasks) {
     await taskStore.fetchTasks(page);
@@ -107,6 +110,9 @@ async function loadPage(page: number) {
   }
 }
 
+/**
+ * Loads one more page of finished tasks.
+ */
 async function loadFinishedPage(page: number) {
   if (props.all_tasks) {
     await taskStore.fetchFinishedTasks(page);
@@ -115,6 +121,9 @@ async function loadFinishedPage(page: number) {
   }
 }
 
+/**
+ * Loads more tasks.
+ */
 async function loadMore() {
   try {
     await loadPage(pageNumber.value);
@@ -133,6 +142,9 @@ async function loadMore() {
   }
 }
 
+/**
+ * Loads more finished tasks.
+ */
 async function loadFinished() {
   try {
     await loadFinishedPage(finishedPageNumber.value);
@@ -154,6 +166,9 @@ async function loadFinished() {
   }
 }
 
+/**
+ * Refreshes the task list to get the latest tasks.
+ */
 async function refresh() {
   try {
     for (let i = 0; i < pageNumber.value; i++) {
@@ -210,7 +225,7 @@ onMounted(async () => {
   } else {
     await refresh();
   }
-  console.log(pageNumber.value);
-  console.log(finishedPageNumber.value);
+  //console.log(pageNumber.value);
+  //console.log(finishedPageNumber.value);
 });
 </script>

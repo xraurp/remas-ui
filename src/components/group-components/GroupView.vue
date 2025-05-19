@@ -115,6 +115,10 @@ function onEdit() {
   readOnly.value = false;
 }
 
+/**
+ * Checks if there are any changes to the group
+ * @returns {boolean} True if there are no changes
+ */
 function compareEdit() {
   let cmp = groupName.value === group?.name;
   cmp =
@@ -125,6 +129,9 @@ function compareEdit() {
   return cmp;
 }
 
+/**
+ * Changes the parent group of the group
+ */
 async function changeGroupParent() {
   await userGroupStore
     .changeGroupParent(
@@ -150,6 +157,9 @@ async function changeGroupParent() {
     });
 }
 
+/**
+ * Updates the group properties
+ */
 async function updateGroupData() {
   await userGroupStore
     .updateGroup(<Group>{
@@ -181,6 +191,9 @@ async function updateGroupData() {
     });
 }
 
+/**
+ * Submits all the changes to the group
+ */
 async function onSubmit() {
   if (compareEdit() && parentGroup.value == (group?.parent?.name || 'None')) {
     $q.notify({

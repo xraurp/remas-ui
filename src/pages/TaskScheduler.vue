@@ -357,14 +357,16 @@ function onDeselectNode(node: Node) {
   selectedNodes.value = selectedNodes.value.filter((n) => n !== node);
 }
 
-async function onCancel() {
-  if (numericId.value) {
-    await router.push({ name: 'tasks', params: { id: numericId.value } });
-  } else {
-    router.back();
-  }
+/**
+ * Navigates back to task list when task editing is cancelled.
+ */
+function onCancel() {
+  router.back();
 }
 
+/**
+ * Retreives task data from API.
+ */
 async function setupTask() {
   // If new task is being created, do nothing
   if (!numericId.value) {
@@ -452,6 +454,11 @@ function compareResourceAllocations(
   return true;
 }
 
+/**
+ * Check task has not changed from the last time it was saved.
+ * @param newTaskRequest The new task request
+ * @returns False if task has changed
+ */
 function compareTask(newTaskRequest: Task) {
   if (!numericId.value) {
     return false;
@@ -469,6 +476,9 @@ function compareTask(newTaskRequest: Task) {
   return cmp;
 }
 
+/**
+ * Schedules the task.
+ */
 async function onScheduleTask() {
   // Get the event in calendar
   const eventData = eventServicePlugin.get(0);

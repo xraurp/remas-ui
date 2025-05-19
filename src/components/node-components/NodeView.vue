@@ -157,6 +157,9 @@ const resourceList = computed(() =>
 const nodeName = ref(node?.name || '');
 const description = ref(node?.description || '');
 
+/**
+ * Add resource to the node.
+ */
 async function onAddResource() {
   // hide resource list if it is open
   if (showResourceList.value) {
@@ -179,6 +182,9 @@ async function onAddResource() {
   }
 }
 
+/**
+ * Returns the label for the add resource button
+ */
 function getAddResourceButtonLabel(): string {
   if (showResourceList.value) {
     return 'Hide resource list';
@@ -186,6 +192,9 @@ function getAddResourceButtonLabel(): string {
   return 'Add resource';
 }
 
+/**
+ * Remove resource from the node.
+ */
 async function removeResource() {
   const resource = selectedResource.value;
   if (!node || !resource) {
@@ -206,17 +215,27 @@ async function removeResource() {
   openConfirmRemoveDialog.value = false;
 }
 
+/**
+ * Edit the amount of a resource
+ */
 function editAmount(resource: NodeResource) {
   openDialog.value = true;
   selectedResource.value = resource;
   amount.value = resource.amount;
 }
 
+/**
+ * Show dialog to remove resource
+ */
 function showRemoveDialog(resource: NodeResource) {
   openConfirmRemoveDialog.value = true;
   selectedResource.value = resource;
 }
 
+/**
+ * Add resource to the node. Runs after resource amount is selected.
+ * @param {amount: number; unit_str: string} newAmount The amount of the resource and its unit (eg. 2 GiB)
+ */
 async function confirmAddResource(newAmount: {
   amount: number;
   unit_str: string;
@@ -275,6 +294,9 @@ function onCancel() {
   description.value = node?.description || '';
 }
 
+/**
+ * Update the node
+ */
 async function onSubmit() {
   await nodeResourceStore
     .updateNode({

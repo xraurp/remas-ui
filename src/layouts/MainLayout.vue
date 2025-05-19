@@ -98,6 +98,7 @@ const router = useRouter();
 const leftDrawerOpen = ref(false);
 const firstLetter = computed(() => getFirstLetter(authStore.user));
 
+// Left drawer menu for navigation in the app
 const leftDrawerContent = [
   {
     label: 'Task planning',
@@ -173,6 +174,9 @@ function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 
+/**
+ * Open grafana link that is received from the backend.
+ */
 async function openGrafanalink() {
   const data = await apiRequest<string, { detail: string }>(
     '/grafana-link',
@@ -182,6 +186,9 @@ async function openGrafanalink() {
   window.open(data.detail, '_blank');
 }
 
+/**
+ * On logout cleans all stores and redirects to login page.
+ */
 async function onLogout() {
   limitStore.logout();
   nodeResourceStore.logout();
@@ -192,6 +199,9 @@ async function onLogout() {
   await router.push({ name: 'login' });
 }
 
+/**
+ * Open user profile.
+ */
 async function onProfile() {
   await router.push({ name: 'profile' });
 }

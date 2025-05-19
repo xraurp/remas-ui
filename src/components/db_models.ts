@@ -5,6 +5,10 @@
 /* Do not modify it by hand - just update the pydantic models and then re-run the script
 */
 
+/**
+ * Contains database models of the application as well as some auxiliary formats.
+ */
+
 export enum EventType {
   task_start = 'task_start',
   task_end = 'task_end',

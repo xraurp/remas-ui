@@ -32,9 +32,6 @@
           {{ props.task.description }}
         </div>
       </div>
-      <!--
-        TODO - add resource allocation display (node and allocated resources)
-      -->
       <q-separator v-if="props.task.tags?.length" />
       <div v-if="props.task.tags?.length">
         <div class="text-subtitle">Tags:</div>

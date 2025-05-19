@@ -213,6 +213,10 @@ const selectedUnit = ref(unitListOptions.value[0] || '');
 const timeOffset = ref(0);
 const notificationTemplate = ref('');
 
+/**
+ * Updates the list of units based on the selected resource.
+ * @param {Resource | null} value The selected resource
+ */
 function onResourceChanged(value: Resource | null) {
   if (value) {
     unitListOptions.value = getUnitList(
@@ -246,6 +250,10 @@ function resetEditValues() {
 
 resetEditValues();
 
+/**
+ * Check if the notification is the same as the current one
+ * @returns {boolean} True if the notification is the same as the current one
+ */
 function compareEdit() {
   let cmp = notificationName.value === notification?.name;
   cmp = cmp && description.value === notification?.description;
@@ -276,6 +284,9 @@ function onEdit() {
   readOnly.value = false;
 }
 
+/**
+ * Updates the notification
+ */
 async function onSubmit() {
   if (compareEdit()) {
     $q.notify({

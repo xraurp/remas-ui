@@ -79,6 +79,9 @@ function openConfirmDialog(limit: Limit) {
   selectedLimit.value = limit;
 }
 
+/**
+ * Deletes a limit
+ */
 async function removeLimit() {
   if (!selectedLimit.value) {
     $q.notify({
@@ -100,6 +103,11 @@ async function removeLimit() {
   showRemoveDialog.value = false;
 }
 
+/**
+ * Checks if a limit is assigned to the current user or group
+ * or inherited from parent.
+ * @returns {boolean} True if the limit is assigned to the current user or group
+ */
 function showRemoveButton(limit: Limit) {
   if (props.user) {
     return limit.user_id === props.user.id;

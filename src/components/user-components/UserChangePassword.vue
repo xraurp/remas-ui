@@ -96,6 +96,9 @@ const newPassword2 = ref('');
 const showPasswd = ref(false);
 const showNewPasswd = ref(false);
 
+/**
+ * Change user password without requiring current password (admin only)
+ */
 function setPassword() {
   if (process.env.debug) {
     console.log(props.user);
@@ -120,6 +123,9 @@ function setPassword() {
     });
 }
 
+/**
+ * Change user password with requiring current password
+ */
 function changePassword() {
   authStore
     .updateUserPassword(newPassword.value, password.value)

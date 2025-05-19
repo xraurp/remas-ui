@@ -35,7 +35,6 @@ const taskStore = useTaskStore();
 /**
  * Fetch periods when resources are used.
  * @param range Range of dates displayed on the calendar
- * @returns Nothing
  */
 function getScheduledResources(range: { start: string; end: string }) {
   if (
@@ -127,6 +126,7 @@ export const calendar = createCalendar({
       });
     },
   },
+  // Calendar containing user task
   calendars: {
     tasks: {
       label: 'Tasks',
@@ -142,6 +142,7 @@ export const calendar = createCalendar({
         container: '#3f658a',
       },
     },
+    // Calendar for adding info about unavailable nodes
     nodes: {
       label: 'Nodes',
       colorName: 'nodes',

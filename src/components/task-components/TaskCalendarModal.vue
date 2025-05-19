@@ -37,14 +37,12 @@
       align="right"
       v-if="props.calendarEvent.calendarId === 'tasks'"
     >
-      <!--q-btn label="Update task info" color="primary" @click="onUpdateTask" /-->
       <q-btn
         flat
         label="Remove scheduling"
         color="negative"
         @click="onRemove"
       />
-      <!--q-btn flat label="Cancel" color="primary" @click="onCancel" /-->
     </q-card-actions>
   </q-card>
 </template>
@@ -81,6 +79,9 @@ const description = ref(props.calendarEvent.description);
 const start = ref(props.calendarEvent.start);
 const end = ref(props.calendarEvent.end);
 
+/**
+ * Updates task info
+ */
 function onUpdateTask() {
   const updatedEvent = {
     id: props.calendarEvent.id,
@@ -101,11 +102,17 @@ function onUpdateTask() {
   eventModalPlugin.close();
 }*/
 
+/**
+ * Removes task from the calendar
+ */
 function onRemove() {
   eventServicePlugin.remove(props.calendarEvent.id);
   eventModalPlugin.close();
 }
 
+/**
+ * Updates task start time
+ */
 function updateStart(newStart: string) {
   const startDate = date.extractDate(newStart, dateFormat);
   const endDate = date.extractDate(end.value, dateFormat);
@@ -121,6 +128,9 @@ function updateStart(newStart: string) {
   onUpdateTask();
 }
 
+/**
+ * Updates task end time
+ */
 function updateEnd(newEnd: string) {
   const startDate = date.extractDate(start.value, dateFormat);
   const endDate = date.extractDate(newEnd, dateFormat);

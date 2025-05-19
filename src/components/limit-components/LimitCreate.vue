@@ -202,6 +202,10 @@ const resourceOptions = computed(() => nodeResourceStore.getResources);
 const nodeOptions = computed(() => nodeResourceStore.getNodes);
 const unitOptions = ref(getUnitList(resource.value?.unit || Unit.NONE));
 
+/**
+ * When resource is changed, update unit list
+ * @param {Resource | null} value The selected resource
+ */
 function onResourceChanged(value: Resource | null) {
   if (value) {
     unitOptions.value = getUnitList(value.unit || Unit.NONE);
