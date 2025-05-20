@@ -18,7 +18,7 @@ export const useTaskStore = defineStore('taskStore', {
     allTasks: <TaskResponse[]>[],
     allFinishedTasks: <TaskResponse[]>[],
     resourceSchedule: <UsagePeriod[]>[],
-    pageSize: 4,
+    pageSize: 10,
     // data related to task scheduler calendar integration
     selectedTask: 0,
     previousStart: '',
