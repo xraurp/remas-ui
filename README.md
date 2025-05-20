@@ -51,3 +51,7 @@ Builded application files are located at `dist/spa` directory.
 Server URL and debug options are stored in `build.env` section in `quasar.config.ts`.
 To point frontend at correct backend URL (domain) and enable / disable debug output to console change settings in this section.
 Default server URL is `http://localhost:8000`, which is used for testing on development machine.
+
+## Repository structure
+
+Project follows Quasar project structure described on [this](#https://quasar.dev/quasar-cli-vite/directory-structure/) page.
