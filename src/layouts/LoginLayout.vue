@@ -4,7 +4,6 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
-            <!-- TODO - change icon to some created one -->
             <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
           </q-avatar>
           REMAS

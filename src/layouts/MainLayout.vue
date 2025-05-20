@@ -5,7 +5,6 @@
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title> REMAS </q-toolbar-title>
-        <!-- TODO - add avatar with user settings -->
 
         <q-btn-dropdown flat rounded dense color="primary">
           <template v-slot:label>
