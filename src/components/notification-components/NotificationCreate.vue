@@ -35,6 +35,7 @@
             clearable
             option-label="name"
             :rules="[(val) => !!val || 'Resource is required!']"
+            @update:model-value="(value) => onResourceChanged(value)"
           >
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps">
@@ -172,7 +173,7 @@ const isGrafanaAlert = computed(() =>
 const resourceList = ref<Resource[]>(nodeResourceStore.getResources);
 const selectedResource = ref<Resource>();
 const defaultAmount = ref(0);
-const unitListOptions = computed(() =>
+const unitListOptions = ref(
   getUnitList(selectedResource.value?.unit || Unit.NONE),
 );
 const selectedUnit = ref(unitListOptions.value[0] || '');
@@ -180,6 +181,19 @@ const selectedUnit = ref(unitListOptions.value[0] || '');
 // time based alert
 const timeOffset = ref(0);
 const notificationTemplate = ref('');
+
+/**
+ * Updates the list of units based on the selected resource.
+ * @param {Resource | null} value The selected resource
+ */
+function onResourceChanged(value: Resource | null) {
+  if (value) {
+    unitListOptions.value = getUnitList(
+      selectedResource.value?.unit || Unit.NONE,
+    );
+    selectedUnit.value = unitListOptions.value[0] || '';
+  }
+}
 
 function onCancel() {
   router.back();
